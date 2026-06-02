@@ -21,7 +21,7 @@ ProjectNexus is a centralized platform designed for software service companies t
 
 ### Frontend
 - React
-- TypeScript
+- JavaScript
 - Tailwind CSS
 
 ### Backend
