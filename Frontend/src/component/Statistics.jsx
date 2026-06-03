@@ -45,25 +45,25 @@ const Statistics = () => {
               <div className="svg-graph-container">
                 <svg viewBox="0 0 500 300" className="animated-graph">
                   {/* Grid Lines */}
-                  <line x1="50" y1="250" x2="480" y2="250" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-                  <line x1="50" y1="200" x2="480" y2="200" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" />
-                  <line x1="50" y1="150" x2="480" y2="150" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" />
-                  <line x1="50" y1="100" x2="480" y2="100" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" />
-                  <line x1="50" y1="50" x2="480" y2="50" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="5,5" />
+                  <line x1="50" y1="250" x2="480" y2="250" stroke="rgba(0,0,0,0.08)" strokeWidth="1" />
+                  <line x1="50" y1="200" x2="480" y2="200" stroke="rgba(0,0,0,0.08)" strokeWidth="1" strokeDasharray="5,5" />
+                  <line x1="50" y1="150" x2="480" y2="150" stroke="rgba(0,0,0,0.08)" strokeWidth="1" strokeDasharray="5,5" />
+                  <line x1="50" y1="100" x2="480" y2="100" stroke="rgba(0,0,0,0.08)" strokeWidth="1" strokeDasharray="5,5" />
+                  <line x1="50" y1="50" x2="480" y2="50" stroke="rgba(0,0,0,0.08)" strokeWidth="1" strokeDasharray="5,5" />
                   
                   {/* Y-Axis Labels */}
-                  <text x="40" y="255" fill="#94a3b8" fontSize="12" textAnchor="end">0</text>
-                  <text x="40" y="205" fill="#94a3b8" fontSize="12" textAnchor="end">25%</text>
-                  <text x="40" y="155" fill="#94a3b8" fontSize="12" textAnchor="end">50%</text>
-                  <text x="40" y="105" fill="#94a3b8" fontSize="12" textAnchor="end">75%</text>
-                  <text x="40" y="55" fill="#94a3b8" fontSize="12" textAnchor="end">100%</text>
+                  <text x="40" y="255" fill="#475569" fontSize="12" textAnchor="end">0</text>
+                  <text x="40" y="205" fill="#475569" fontSize="12" textAnchor="end">25%</text>
+                  <text x="40" y="155" fill="#475569" fontSize="12" textAnchor="end">50%</text>
+                  <text x="40" y="105" fill="#475569" fontSize="12" textAnchor="end">75%</text>
+                  <text x="40" y="55" fill="#475569" fontSize="12" textAnchor="end">100%</text>
                   
                   {/* X-Axis Labels */}
-                  <text x="90" y="270" fill="#94a3b8" fontSize="12" textAnchor="middle">2021</text>
-                  <text x="180" y="270" fill="#94a3b8" fontSize="12" textAnchor="middle">2022</text>
-                  <text x="270" y="270" fill="#94a3b8" fontSize="12" textAnchor="middle">2023</text>
-                  <text x="360" y="270" fill="#94a3b8" fontSize="12" textAnchor="middle">2024</text>
-                  <text x="450" y="270" fill="#94a3b8" fontSize="12" textAnchor="middle">2025</text>
+                  <text x="90" y="270" fill="#475569" fontSize="12" textAnchor="middle">2021</text>
+                  <text x="180" y="270" fill="#475569" fontSize="12" textAnchor="middle">2022</text>
+                  <text x="270" y="270" fill="#475569" fontSize="12" textAnchor="middle">2023</text>
+                  <text x="360" y="270" fill="#475569" fontSize="12" textAnchor="middle">2024</text>
+                  <text x="450" y="270" fill="#475569" fontSize="12" textAnchor="middle">2025</text>
                   
                   {/* Area under the line */}
                   <path 
