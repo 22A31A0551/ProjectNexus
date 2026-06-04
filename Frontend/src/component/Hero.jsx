@@ -1,7 +1,7 @@
 import React from 'react';
 const logo = new URL('../assets/ProjectNexusLogo.jpeg', import.meta.url).href;
 
-const Hero = () => {
+const Hero = ({ onLoginClick }) => {
   return (
     <section className="hero-section" id="home">
       <div className="hero-container">
@@ -12,14 +12,17 @@ const Hero = () => {
             Connecting Clients, Teams, and Projects Beyond Delivery.
           </p>
           <p className="hero-description">
-            ProjectNexus is a Project Maintenance &amp; Service Management Platform
-            that enables software companies to efficiently manage client support,
-            maintenance requests, bug reports, feature enhancements, and project
-            communication through a centralized and transparent workflow.
+             ProjectNexus is a Project Maintenance &amp; Service Management Platform
+             that enables software companies to efficiently manage client support,
+             maintenance requests, bug reports, feature enhancements, and project
+             communication through a centralized and transparent workflow.
           </p>
           <div className="hero-buttons">
             <a href="#services" className="hero-btn-primary">Explore Services</a>
-            <a href="#login" className="hero-btn-secondary">Client Login</a>
+            <a href="#login" className="hero-btn-secondary" onClick={(e) => {
+              e.preventDefault();
+              if (onLoginClick) onLoginClick();
+            }}>Client Login</a>
           </div>
         </div>
 
@@ -37,3 +40,4 @@ const Hero = () => {
 };
 
 export default Hero;
+

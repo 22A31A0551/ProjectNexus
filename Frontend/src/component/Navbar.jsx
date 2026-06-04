@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function Navbar() {
+function Navbar({ onLoginClick }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [activeSection, setActiveSection] = useState('home');
@@ -83,7 +83,7 @@ function Navbar() {
                     <div className="nav-cta">
                         <a href="#login" className="cta-btn" onClick={(e) => {
                             e.preventDefault();
-                            handleLinkClick('login');
+                            if (onLoginClick) onLoginClick();
                         }}>
                             Login
                         </a>
@@ -126,7 +126,8 @@ function Navbar() {
                 ))}
                 <a href="#login" className="mobile-cta-btn" onClick={(e) => {
                     e.preventDefault();
-                    handleLinkClick('login');
+                    setIsMenuOpen(false);
+                    if (onLoginClick) onLoginClick();
                 }}>
                     Login
                 </a>
@@ -136,3 +137,5 @@ function Navbar() {
 }
 
 export default Navbar;
+
+

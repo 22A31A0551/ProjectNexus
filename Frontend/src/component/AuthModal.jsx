@@ -1,0 +1,442 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+function AuthModal({ isOpen, onClose }) {
+    const navigate = useNavigate();
+    const [isLogin, setIsLogin] = useState(true);
+    const [isAnimating, setIsAnimating] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [successRole, setSuccessRole] = useState('');
+    const [error, setError] = useState('');
+
+    // Form states
+    const [loginEmail, setLoginEmail] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+    const [regName, setRegName] = useState('');
+    const [regEmail, setRegEmail] = useState('');
+    const [regPassword, setRegPassword] = useState('');
+    const [regConfirmPassword, setRegConfirmPassword] = useState('');
+
+    // Password visibility
+    const [showLoginPass, setShowLoginPass] = useState(false);
+    const [showRegPass, setShowRegPass] = useState(false);
+    const [showRegConfirmPass, setShowRegConfirmPass] = useState(false);
+
+    // Reset forms when modal closes
+    useEffect(() => {
+        if (!isOpen) {
+            setLoginEmail('');
+            setLoginPassword('');
+            setRegName('');
+            setRegEmail('');
+            setRegPassword('');
+            setRegConfirmPassword('');
+            setShowLoginPass(false);
+            setShowRegPass(false);
+            setShowRegConfirmPass(false);
+            setIsSuccess(false);
+            setSuccessRole('');
+            setError('');
+        }
+    }, [isOpen]);
+
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [isOpen]);
+
+    const switchMode = () => {
+        setError('');
+        setIsAnimating(true);
+        setTimeout(() => {
+            setIsLogin(!isLogin);
+            setIsAnimating(false);
+        }, 250);
+    };
+
+    const handleLoginSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        try {
+            const response = await fetch('http://localhost:8080/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.message || 'Invalid email or password.');
+                return;
+            }
+
+            // Store logged in user in localStorage
+            localStorage.setItem('user', JSON.stringify(data));
+
+            const role = data.role.toLowerCase();
+            setSuccessRole(role);
+            setIsSuccess(true);
+
+            setTimeout(() => {
+                setIsSuccess(false);
+                setSuccessRole('');
+                onClose();
+                navigate('/' + role);
+            }, 3000);
+
+        } catch (err) {
+            setError('Cannot connect to server. Please make sure the backend is running on port 8080.');
+        }
+    };
+
+    const handleRegisterSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        if (regPassword !== regConfirmPassword) {
+            setError('Passwords do not match.');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: regName, email: regEmail, password: regPassword }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.message || 'Registration failed. Please try again.');
+                return;
+            }
+
+            // Auto-login after registration
+            const loginRes = await fetch('http://localhost:8080/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: regEmail, password: regPassword }),
+            });
+            const loginData = await loginRes.json();
+            if (loginRes.ok) {
+                localStorage.setItem('user', JSON.stringify(loginData));
+            }
+
+            setSuccessRole('client');
+            setIsSuccess(true);
+
+            setTimeout(() => {
+                setIsSuccess(false);
+                setSuccessRole('');
+                onClose();
+                navigate('/client');
+            }, 3000);
+
+        } catch (err) {
+            setError('Cannot connect to server. Please make sure the backend is running on port 8080.');
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="auth-overlay" onClick={onClose}>
+            <div
+                className={`auth-modal ${isAnimating ? 'auth-modal-switching' : ''}`}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Close Button */}
+                <button className="auth-close-btn" onClick={onClose} aria-label="Close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+
+                {/* Decorative glow */}
+                <div className="auth-modal-glow"></div>
+
+                {isSuccess ? (
+                    /* Success View */
+                    <div className="auth-success-view">
+                        <div className="auth-success-icon">✓</div>
+                        <h2 className="auth-success-title">Login Successful!</h2>
+                        <p className="auth-success-subtitle">
+                            Welcome back, <span className="role-text">{successRole.toUpperCase()}</span>
+                        </p>
+                        <div className="auth-loader-bar">
+                            <div className="auth-loader-progress"></div>
+                        </div>
+                        <p className="auth-redirect-text">Opening your dashboard...</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Header */}
+                        <div className="auth-header">
+                            <div className="auth-logo-icon">✦</div>
+                            <h2 className="auth-title">
+                                {isLogin ? 'Welcome Back' : 'Create Account'}
+                            </h2>
+                            <p className="auth-subtitle">
+                                {isLogin
+                                    ? 'Sign in to access your dashboard'
+                                    : 'Join ProjectNexus and get started'}
+                            </p>
+                        </div>
+
+                        {/* Error Banner */}
+                        {error && (
+                            <div className="auth-error-banner">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                                <span>{error}</span>
+                            </div>
+                        )}
+
+                        {/* Login Form */}
+                        {isLogin ? (
+                            <form className="auth-form" onSubmit={handleLoginSubmit} id="login-form">
+                                <div className="auth-field">
+                                    <label className="auth-label" htmlFor="login-email">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                                        </svg>
+                                        Email Address
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="login-email"
+                                        className="auth-input"
+                                        placeholder="you@example.com"
+                                        value={loginEmail}
+                                        onChange={(e) => setLoginEmail(e.target.value)}
+                                        required
+                                        autoComplete="email"
+                                    />
+                                </div>
+
+                                <div className="auth-field">
+                                    <label className="auth-label" htmlFor="login-password">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                        </svg>
+                                        Password
+                                    </label>
+                                    <div className="auth-input-wrap">
+                                        <input
+                                            type={showLoginPass ? 'text' : 'password'}
+                                            id="login-password"
+                                            className="auth-input auth-input-password"
+                                            placeholder="Enter your password"
+                                            value={loginPassword}
+                                            onChange={(e) => setLoginPassword(e.target.value)}
+                                            required
+                                            autoComplete="current-password"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="auth-toggle-pass"
+                                            onClick={() => setShowLoginPass(!showLoginPass)}
+                                            aria-label="Toggle password visibility"
+                                        >
+                                            {showLoginPass ? (
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                                                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                                </svg>
+                                            ) : (
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button type="submit" className="auth-submit-btn" id="login-submit-btn">
+                                    <span>Sign In</span>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </button>
+                            </form>
+                        ) : (
+                            /* Register Form */
+                            <form className="auth-form" onSubmit={handleRegisterSubmit} id="register-form">
+                                <div className="auth-field">
+                                    <label className="auth-label" htmlFor="reg-name">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="12" cy="7" r="4"></circle>
+                                        </svg>
+                                        Full Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="reg-name"
+                                        className="auth-input"
+                                        placeholder="John Doe"
+                                        value={regName}
+                                        onChange={(e) => setRegName(e.target.value)}
+                                        required
+                                        autoComplete="name"
+                                    />
+                                </div>
+
+                                <div className="auth-field">
+                                    <label className="auth-label" htmlFor="reg-email">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                                        </svg>
+                                        Email Address
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="reg-email"
+                                        className="auth-input"
+                                        placeholder="you@example.com"
+                                        value={regEmail}
+                                        onChange={(e) => setRegEmail(e.target.value)}
+                                        required
+                                        autoComplete="email"
+                                    />
+                                </div>
+
+                                <div className="auth-field">
+                                    <label className="auth-label" htmlFor="reg-password">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                        </svg>
+                                        Create Password
+                                    </label>
+                                    <div className="auth-input-wrap">
+                                        <input
+                                            type={showRegPass ? 'text' : 'password'}
+                                            id="reg-password"
+                                            className="auth-input auth-input-password"
+                                            placeholder="Create a strong password"
+                                            value={regPassword}
+                                            onChange={(e) => setRegPassword(e.target.value)}
+                                            required
+                                            minLength={6}
+                                            autoComplete="new-password"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="auth-toggle-pass"
+                                            onClick={() => setShowRegPass(!showRegPass)}
+                                            aria-label="Toggle password visibility"
+                                        >
+                                            {showRegPass ? (
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                                                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                                </svg>
+                                            ) : (
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="auth-field">
+                                    <label className="auth-label" htmlFor="reg-confirm-password">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                        </svg>
+                                        Confirm Password
+                                    </label>
+                                    <div className="auth-input-wrap">
+                                        <input
+                                            type={showRegConfirmPass ? 'text' : 'password'}
+                                            id="reg-confirm-password"
+                                            className="auth-input auth-input-password"
+                                            placeholder="Confirm your password"
+                                            value={regConfirmPassword}
+                                            onChange={(e) => setRegConfirmPassword(e.target.value)}
+                                            required
+                                            minLength={6}
+                                            autoComplete="new-password"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="auth-toggle-pass"
+                                            onClick={() => setShowRegConfirmPass(!showRegConfirmPass)}
+                                            aria-label="Toggle password visibility"
+                                        >
+                                            {showRegConfirmPass ? (
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                                                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                                </svg>
+                                            ) : (
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button type="submit" className="auth-submit-btn" id="register-submit-btn">
+                                    <span>Create Account</span>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </button>
+                            </form>
+                        )}
+
+                        {/* Switch Login / Register */}
+                        <div className="auth-divider">
+                            <span className="auth-divider-line"></span>
+                            <span className="auth-divider-text">{isLogin ? 'New here?' : 'Already a member?'}</span>
+                            <span className="auth-divider-line"></span>
+                        </div>
+
+                        <div className="auth-switch">
+                            <p className="auth-switch-text">
+                                {isLogin ? "Don't have an account?" : 'Already have an account?'}
+                            </p>
+                            <button
+                                type="button"
+                                className="auth-switch-btn"
+                                onClick={switchMode}
+                                id="auth-switch-btn"
+                            >
+                                {isLogin ? 'Register Now' : 'Sign In'}
+                            </button>
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export default AuthModal;
