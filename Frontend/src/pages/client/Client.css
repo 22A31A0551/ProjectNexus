@@ -1,0 +1,578 @@
+/* Client.css - Premium Dark Mode matching the Admin Dashboard */
+
+:root {
+  --client-bg-dark: #0f111a;
+  --client-surface: #161925;
+  --client-card-bg: rgba(25, 28, 41, 0.6);
+  --client-accent: #7b61ff;
+  --client-accent-glow: rgba(123, 97, 255, 0.4);
+  --client-text-primary: #f0f0f5;
+  --client-text-secondary: #a0a5b5;
+  --client-border: rgba(255, 255, 255, 0.08);
+  --client-success: #10b981;
+  --client-warning: #f59e0b;
+  --client-danger: #ef4444;
+  --transition-speed: 0.3s;
+}
+
+body {
+  margin: 0;
+  background-color: var(--client-bg-dark);
+  color: var(--client-text-primary);
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+/* --- Login Page (Two-Column Split) --- */
+.client-login-page {
+  min-height: 100vh;
+  display: flex;
+  background-color: var(--client-bg-dark);
+}
+
+/* LEFT PANEL */
+.client-login-left {
+  flex: 1;
+  background: linear-gradient(160deg, #1a1040 0%, #0f0f1a 60%, #0d1a2a 100%);
+  border-right: 1px solid var(--client-border);
+  padding: 60px 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.client-login-left::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(123, 97, 255, 0.25) 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+  pointer-events: none;
+}
+
+.client-login-left::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+  bottom: -80px;
+  right: -80px;
+  pointer-events: none;
+}
+
+.client-login-brand {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-logo-mark {
+  font-size: 2.5rem;
+  color: var(--client-accent);
+  text-shadow: 0 0 20px rgba(123, 97, 255, 0.6);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.client-login-brand h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+  background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-tagline {
+  color: var(--client-text-secondary);
+  font-size: 1.05rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.client-login-features {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.feature-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background: rgba(123, 97, 255, 0.12);
+  border: 1px solid rgba(123, 97, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-item strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--client-text-primary);
+  margin-bottom: 4px;
+}
+
+.feature-item p {
+  margin: 0;
+  color: var(--client-text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.client-login-footer-text {
+  color: var(--client-text-secondary);
+  font-size: 0.82rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* RIGHT PANEL */
+.client-login-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 50px;
+  background-color: var(--client-bg-dark);
+}
+
+.client-login-form-wrapper {
+  width: 100%;
+  max-width: 440px;
+}
+
+.client-form-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--client-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.client-form-subtitle {
+  color: var(--client-text-secondary);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.client-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.client-input-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 1rem;
+  z-index: 2;
+}
+
+.client-input-wrapper input {
+  padding-left: 42px !important;
+}
+
+.client-login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0;
+  color: var(--client-text-secondary);
+  font-size: 0.85rem;
+}
+
+.client-login-divider::before,
+.client-login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--client-border);
+}
+
+/* Spinner for loading button */
+.btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive: stack on smaller screens */
+@media (max-width: 768px) {
+  .client-login-page {
+    flex-direction: column;
+  }
+  .client-login-left {
+    padding: 40px 30px;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--client-border);
+  }
+  .client-login-features {
+    display: none;
+  }
+  .client-login-right {
+    padding: 40px 24px;
+  }
+}
+
+
+
+/* --- Shared Form Styles --- */
+.client-error-banner {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--client-danger);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.client-form-group {
+  margin-bottom: 24px;
+}
+
+.client-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--client-text-secondary);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.client-form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--client-border);
+  color: var(--client-text-primary);
+  border-radius: 10px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.client-form-group input:focus {
+  outline: none;
+  border-color: var(--client-accent);
+  background: rgba(123, 97, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.15);
+}
+
+.client-btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #7b61ff, #5a3ee0);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(123, 97, 255, 0.35);
+  letter-spacing: 0.3px;
+}
+
+.client-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(123, 97, 255, 0.55);
+  background: linear-gradient(135deg, #8a73ff, #6b51f0);
+}
+
+.client-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- Layout --- */
+.client-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.client-navbar {
+  background: rgba(22, 25, 37, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--client-border);
+  padding: 0 40px;
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 90;
+}
+
+.client-nav-brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--client-text-primary);
+}
+
+.client-nav-brand .brand-logo {
+  color: var(--client-accent);
+  text-shadow: 0 0 10px var(--client-accent-glow);
+}
+
+.client-nav-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.client-logout-btn {
+  background: transparent;
+  border: 1px solid var(--client-border);
+  color: var(--client-text-secondary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.client-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--client-text-primary);
+}
+
+.client-main-content {
+  flex: 1;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.client-main-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(123,97,255,0.1) 0%, rgba(0,0,0,0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* --- Dashboard --- */
+.client-dashboard-header {
+  margin-bottom: 32px;
+}
+
+.client-dashboard-header h1 {
+  margin: 0 0 8px 0;
+  color: var(--client-text-primary);
+  font-size: 2rem;
+}
+
+.client-dashboard-header p {
+  margin: 0;
+  color: var(--client-text-secondary);
+}
+
+.client-section-title {
+  font-size: 1.25rem;
+  color: var(--client-text-primary);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  background: linear-gradient(90deg, #fff, #b4b4b4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.project-card {
+  background: var(--client-card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--client-border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.project-card h3 {
+  margin: 0 0 8px 0;
+  color: var(--client-text-primary);
+}
+
+.project-card p {
+  color: var(--client-text-secondary);
+  font-size: 0.9rem;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.project-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 0.85rem;
+}
+
+.project-status {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  background: rgba(160, 165, 181, 0.15);
+  color: var(--client-text-secondary);
+}
+.project-status.active { background: rgba(16, 185, 129, 0.15); color: var(--client-success); }
+
+.btn-outline {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  border: 1px solid var(--client-border);
+  color: var(--client-text-primary);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Table overrides for dark mode */
+.client-table-container {
+  background: var(--client-card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
+  border: 1px solid var(--client-border);
+  overflow: hidden;
+}
+
+.client-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.client-table-container th {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  font-weight: 500;
+  color: var(--client-text-secondary);
+  border-bottom: 1px solid var(--client-border);
+  text-align: left;
+}
+
+.client-table-container td {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.client-table-container tr:last-child td {
+  border-bottom: none;
+}
+
+.client-table-container tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Modal styles for creating request */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--client-surface);
+  border: 1px solid var(--client-border);
+  padding: 32px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.modal-content h3 {
+  margin: 0 0 24px 0;
+  color: var(--client-text-primary);
+}
+
+.modal-content label {
+  color: var(--client-text-secondary);
+}
+
+.modal-content select, .modal-content textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--client-border);
+  background: rgba(0,0,0,0.2);
+  color: var(--client-text-primary);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.modal-content select:focus, .modal-content textarea:focus {
+  outline: none;
+  border-color: var(--client-accent);
+}
