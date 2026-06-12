@@ -25,10 +25,32 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Clear dummy data
-        supportRequestRepository.deleteAll();
-        projectRepository.deleteAll();
-        clientRepository.deleteAll();
-        System.out.println("Dummy data removed from the database.");
+        seedClients();
+    }
+
+    private void seedClients() {
+        // First Client: venkatavamsipemada@gmail.com
+        if (!clientRepository.existsByEmail("venkatavamsipemada@gmail.com")) {
+            Client client1 = new Client(
+                    "Venkata Vamsi", 
+                    "venkatavamsipemada@gmail.com", 
+                    "+1-555-0100", 
+                    "Vamsi Tech Solutions"
+            );
+            clientRepository.save(client1);
+            System.out.println("Restored Client 1.");
+        }
+
+        // Second Client: pemmada2@gmail.com
+        if (!clientRepository.existsByEmail("pemmada2@gmail.com")) {
+            Client client2 = new Client(
+                    "Pemmada", 
+                    "pemmada2@gmail.com", 
+                    "+1-555-0200", 
+                    "Global Innovations Inc"
+            );
+            clientRepository.save(client2);
+            System.out.println("Restored Client 2.");
+        }
     }
 }
