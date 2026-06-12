@@ -4,15 +4,17 @@ import './Admin.css';
 function AdminDashboardOverview() {
     const [overviewData, setOverviewData] = useState({
         totalClients: 0,
-        activeProjects: 0,
+        activeClients: 0,
+        activeRequests: 0,
         totalProjects: 0,
+        pendingProjects: 0,
         recentProjects: []
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        // Fetch data from Spring Boot Backend
+    const fetchDashboardData = () => {
+        setLoading(true);
         fetch('http://localhost:8080/api/admin/dashboard/overview')
             .then(res => {
                 if (!res.ok) throw new Error("Failed to fetch dashboard data");
@@ -27,51 +29,83 @@ function AdminDashboardOverview() {
                 setError("Unable to load data from server. Please ensure the backend is running.");
                 setLoading(false);
             });
+    };
+
+    useEffect(() => {
+        fetchDashboardData();
+
+        // Listen for the custom event when a request is accepted in the header/notification dropdown
+        window.addEventListener('requestAccepted', fetchDashboardData);
+        return () => {
+            window.removeEventListener('requestAccepted', fetchDashboardData);
+        };
     }, []);
 
     const stats = [
-        { label: 'Total Clients', value: overviewData.totalClients, icon: '👥', color: '#7b61ff' },
-        { label: 'Active Projects', value: overviewData.activeProjects, icon: '📁', color: '#10b981' },
-        { label: 'Total Projects', value: overviewData.totalProjects, icon: '🔔', color: '#f59e0b' },
-        { label: 'Monthly Revenue', value: 'N/A', icon: '💰', color: '#ec4899' },
+        { 
+            label: 'Total Active Clients', 
+            value: overviewData.activeClients, 
+            svg: (
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="none" stroke="currentColor" strokeWidth="2" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2m12-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+                </svg>
+            )
+        },
+        { 
+            label: 'Active Requests', 
+            value: overviewData.activeRequests, 
+            svg: (
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="none" stroke="currentColor" strokeWidth="2" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+            )
+        },
+        { 
+            label: 'Total Projects', 
+            value: overviewData.totalProjects, 
+            svg: (
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="none" stroke="currentColor" strokeWidth="2" d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg>
+            )
+        },
+        { 
+            label: 'Total Pending Projects', 
+            value: overviewData.pendingProjects, 
+            svg: (
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2"/>
+                    <polyline points="12 6 12 12 16 14" fill="none" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+            )
+        },
     ];
 
     return (
         <div className="admin-dashboard-overview">
             <div className="page-header">
                 <div>
-                    <h2>Dashboard Overview</h2>
-                    <p>Welcome back, Admin. Here's what's happening today.</p>
+                    <h2 style={{ color: '#1e1b4b' }}>Dashboard Overview</h2>
+                    <p style={{ color: '#475569' }}>Welcome back, Admin. System statistics overview.</p>
                 </div>
-                <button className="btn-primary">+ Generate Report</button>
             </div>
 
             {error && (
-                <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #ef4444' }}>
+                <div style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#fff', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid var(--admin-border)' }}>
                     {error}
                 </div>
             )}
 
             {/* Stats Grid */}
-            <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+            <div className="stats-grid">
                 {stats.map((stat, index) => (
-                    <div key={index} className="glass-card stat-card" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                        <div className="stat-icon" style={{ 
-                            fontSize: '2rem', 
-                            background: `${stat.color}20`, 
-                            color: stat.color, 
-                            width: '60px', 
-                            height: '60px', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            borderRadius: '16px' 
-                        }}>
-                            {stat.icon}
+                    <div key={index} className="glass-card stat-card">
+                        <div className="stat-icon-wrapper">
+                            {stat.svg}
                         </div>
-                        <div>
-                            <p style={{ margin: 0, color: 'var(--admin-text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>{stat.label}</p>
-                            <h3 style={{ margin: '4px 0 0 0', fontSize: '1.8rem', color: 'var(--admin-text-primary)' }}>
+                        <div className="stat-details">
+                            <span className="stat-label">{stat.label}</span>
+                            <h3 className="stat-value">
                                 {loading ? '...' : stat.value}
                             </h3>
                         </div>
@@ -79,12 +113,12 @@ function AdminDashboardOverview() {
                 ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+            <div className="dashboard-grid-bottom">
                 {/* Recent Projects Table */}
-                <div className="glass-card">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Recent Projects</h3>
-                        <a href="/admin/projects" style={{ color: 'var(--admin-accent)', textDecoration: 'none', fontSize: '0.9rem' }}>View All</a>
+                <div className="glass-card table-section">
+                    <div className="section-header">
+                        <h3 style={{ color: '#1e1b4b' }}>Recent Project History</h3>
+                        <a href="/admin/projects" className="view-all-link">View All</a>
                     </div>
                     
                     <div className="data-table-container">
@@ -108,48 +142,17 @@ function AdminDashboardOverview() {
                                             <td style={{ fontWeight: 500 }}>PRJ-{project.id}</td>
                                             <td>{project.projectName}</td>
                                             <td>
-                                                <span className={`status-badge ${project.status === 'In Progress' ? 'pending' : 'active'}`}>
+                                                <span className={`status-badge-mono ${project.status === 'In Progress' ? 'status-in-progress' : 'status-completed'}`}>
                                                     {project.status || 'N/A'}
                                                 </span>
                                             </td>
-                                            <td style={{ color: 'var(--admin-text-secondary)' }}>{project.deliveryDate || 'Not set'}</td>
+                                            <td style={{ color: '#475569' }}>{project.deliveryDate || 'Not set'}</td>
                                         </tr>
                                     ))
                                 )}
                             </tbody>
                         </table>
                     </div>
-                </div>
-
-                {/* Quick Actions / System Status */}
-                <div className="glass-card">
-                    <h3 style={{ margin: '0 0 20px 0', fontSize: '1.2rem' }}>System Status</h3>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid var(--admin-border)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: error ? 'var(--admin-danger)' : 'var(--admin-success)' }}></span>
-                                <span>Main API Server</span>
-                            </div>
-                            <span style={{ color: error ? 'var(--admin-danger)' : 'var(--admin-success)', fontWeight: 500 }}>
-                                {error ? 'Offline' : 'Online'}
-                            </span>
-                        </div>
-                        
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid var(--admin-border)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: error ? 'var(--admin-danger)' : 'var(--admin-success)' }}></span>
-                                <span>Database Services</span>
-                            </div>
-                            <span style={{ color: error ? 'var(--admin-danger)' : 'var(--admin-success)', fontWeight: 500 }}>
-                                {error ? 'Offline' : 'Online'}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <button className="btn-primary" style={{ width: '100%', marginTop: '24px', background: 'rgba(255,255,255,0.05)', color: 'var(--admin-text-primary)', boxShadow: 'none', border: '1px solid var(--admin-border)' }}>
-                        System Diagnostics
-                    </button>
                 </div>
             </div>
         </div>

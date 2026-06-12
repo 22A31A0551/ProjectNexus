@@ -34,11 +34,26 @@ public class AdminController {
         long totalClients = clientRepository.count();
         long activeProjects = projectRepository.findByStatus("In Progress").size();
         long totalProjects = projectRepository.count();
+        long pendingProjects = projectRepository.findByStatus("Pending").size();
+        
+        long activeClients = projectRepository.findByStatus("In Progress").stream()
+                .map(backend.model.Project::getClient)
+                .filter(java.util.Objects::nonNull)
+                .map(backend.model.Client::getId)
+                .distinct()
+                .count();
+
+        long activeRequests = supportRequestRepository.findByStatus("Accepted").size();
+        long pendingRequests = supportRequestRepository.findByStatus("Pending").size();
 
         // High-level stats
         response.put("totalClients", totalClients);
+        response.put("activeClients", activeClients);
         response.put("activeProjects", activeProjects);
         response.put("totalProjects", totalProjects);
+        response.put("pendingProjects", pendingProjects);
+        response.put("activeRequests", activeRequests);
+        response.put("pendingRequests", pendingRequests);
         
         response.put("recentProjects", projectRepository.findAll());
         
@@ -54,7 +69,12 @@ public class AdminController {
     @PutMapping("/requests/{id}/status")
     public ResponseEntity<backend.model.SupportRequest> updateRequestStatus(@PathVariable Long id, @RequestBody Map<String, String> payload) {
         return supportRequestRepository.findById(id).map(request -> {
-            request.setStatus(payload.get("status"));
+            if (payload.containsKey("status")) {
+                request.setStatus(payload.get("status"));
+            }
+            if (payload.containsKey("assignedManager")) {
+                request.setAssignedManager(payload.get("assignedManager"));
+            }
             return ResponseEntity.ok(supportRequestRepository.save(request));
         }).orElse(ResponseEntity.notFound().build());
     }
