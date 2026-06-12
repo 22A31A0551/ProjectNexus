@@ -79,6 +79,27 @@ function ClientDashboard() {
                 <p>Manage your active projects and support requests below.</p>
             </div>
 
+            {/* Dynamic notifications for accepted requests */}
+            {requests.filter(r => r.status === 'Accepted').map(req => (
+                <div key={req.id} className="client-accepted-notification-alert" style={{
+                    background: '#ffffff',
+                    color: '#000000',
+                    border: '1px solid #e0e0e0',
+                    padding: '16px',
+                    borderRadius: '6px',
+                    marginBottom: '20px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>✦ Ticket Accepted</span>
+                        <span style={{ fontSize: '0.9rem' }}>An admin accepted your request <strong>"{req.requestType}"</strong> for project <strong>"{req.project?.projectName}"</strong>. We will connect shortly.</span>
+                        {req.assignedManager && (
+                            <span style={{ fontSize: '0.8rem', color: '#666' }}>Assigned Manager: <strong>{req.assignedManager}</strong></span>
+                        )}
+                    </div>
+                </div>
+            ))}
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2 className="client-section-title">Your Projects</h2>
                 <button 

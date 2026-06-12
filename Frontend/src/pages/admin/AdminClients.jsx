@@ -46,16 +46,17 @@ function AdminClients() {
 
             <div className="glass-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Registered Clients ({clients.length})</h3>
+                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1e1b4b' }}>Registered Clients ({clients.length})</h3>
                     <input 
                         type="text" 
                         placeholder="Search clients..." 
                         style={{
                             padding: '8px 16px',
                             borderRadius: '20px',
-                            border: '1px solid var(--admin-border)',
-                            background: 'rgba(0,0,0,0.2)',
-                            color: 'var(--admin-text-primary)'
+                            border: '1px solid rgba(109,40,217,0.2)',
+                            background: 'rgba(255,255,255,0.8)',
+                            color: '#1e1b4b',
+                            outline: 'none'
                         }}
                     />
                 </div>

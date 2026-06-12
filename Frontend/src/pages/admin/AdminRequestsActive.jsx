@@ -35,8 +35,8 @@ function AdminRequestsActive() {
         <div className="admin-page">
             <div className="page-header">
                 <div>
-                    <h2>Active Requests</h2>
-                    <p>All accepted support requests currently being processed.</p>
+                    <h2 style={{ color: '#1e1b4b' }}>Active Requests</h2>
+                    <p style={{ color: '#475569' }}>All accepted support requests currently being processed.</p>
                 </div>
             </div>
 
@@ -48,7 +48,7 @@ function AdminRequestsActive() {
 
             <div className="glass-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <h3 style={{ margin: 0 }}>Accepted Requests ({requests.length})</h3>
+                    <h3 style={{ margin: 0, color: '#1e1b4b' }}>Accepted Requests ({requests.length})</h3>
                 </div>
                 <div className="data-table-container">
                     <table className="data-table">
