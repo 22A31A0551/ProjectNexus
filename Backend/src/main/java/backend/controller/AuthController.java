@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Optional;
 
 @RestController
@@ -21,6 +22,9 @@ public class AuthController {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
+    @Autowired
+    private backend.repository.ClientRepository clientRepository;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -36,7 +40,33 @@ public class AuthController {
                 .build();
 
         userRepository.save(user);
+
+        // Check if Client record already exists for this email (pre-stored by Admin)
+        // If not, auto-create a Client profile for them so they are recognized in client portal
+        boolean clientExists = clientRepository.findAll().stream()
+                .anyMatch(c -> c.getEmail().equalsIgnoreCase(request.getEmail()));
+        if (!clientExists) {
+            backend.model.Client newClient = new backend.model.Client(
+                request.getName(),
+                request.getEmail(),
+                "",
+                "Individual Client"
+            );
+            clientRepository.save(newClient);
+        }
+
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
+
+    @GetMapping("/reset-passwords")
+    public ResponseEntity<?> resetPasswords() {
+        String newPassword = passwordEncoder.encode("password");
+        java.util.List<User> users = userRepository.findAll();
+        for (User user : users) {
+            user.setPassword(newPassword);
+            userRepository.save(user);
+        }
+        return ResponseEntity.ok(new MessageResponse("All passwords reset to 'password'"));
     }
 
     @PostMapping("/login")

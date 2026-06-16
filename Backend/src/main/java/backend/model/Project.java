@@ -26,12 +26,21 @@ public class Project {
     @Column(name = "deployment_url")
     private String deploymentUrl;
 
+    @Column(name = "github_url")
+    private String githubUrl;
+
+    @Column(name = "price")
+    private Double price;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
     @Column(name = "status")
     private String status; // e.g., "In Progress", "Completed", "Maintenance"
+
+    @Column(name = "assigned_manager")
+    private String assignedManager;
 
     // Constructors
     public Project() {}
@@ -64,9 +73,18 @@ public class Project {
     public String getDeploymentUrl() { return deploymentUrl; }
     public void setDeploymentUrl(String deploymentUrl) { this.deploymentUrl = deploymentUrl; }
 
+    public String getGithubUrl() { return githubUrl; }
+    public void setGithubUrl(String githubUrl) { this.githubUrl = githubUrl; }
+
+    public Double getPrice() { return price; }
+    public void setPrice(Double price) { this.price = price; }
+
     public Client getClient() { return client; }
     public void setClient(Client client) { this.client = client; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getAssignedManager() { return assignedManager; }
+    public void setAssignedManager(String assignedManager) { this.assignedManager = assignedManager; }
 }

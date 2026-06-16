@@ -5,6 +5,7 @@ function AdminClients() {
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [search, setSearch] = useState('');
 
     useEffect(() => {
         fetchClients();
@@ -28,48 +29,64 @@ function AdminClients() {
         }
     };
 
+    const filtered = clients.filter(c =>
+        c.name?.toLowerCase().includes(search.toLowerCase()) ||
+        c.email?.toLowerCase().includes(search.toLowerCase()) ||
+        c.phoneNumber?.toLowerCase().includes(search.toLowerCase())
+    );
+
     return (
         <div className="admin-clients-page">
             <div className="page-header">
                 <div>
                     <h2>Client Management</h2>
-                    <p>View and manage all registered clients.</p>
+                    <p>All clients who have registered through the portal are listed here automatically.</p>
                 </div>
-                <button className="btn-primary">+ Add New Client</button>
             </div>
 
             {error && (
-                <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #ef4444' }}>
+                <div style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    color: '#ef4444',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    marginBottom: '24px',
+                    border: '1px solid #ef4444'
+                }}>
                     {error}
                 </div>
             )}
 
             <div className="glass-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1e1b4b' }}>Registered Clients ({clients.length})</h3>
-                    <input 
-                        type="text" 
-                        placeholder="Search clients..." 
+                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1e1b4b' }}>
+                        Registered Clients ({filtered.length})
+                    </h3>
+                    <input
+                        type="text"
+                        placeholder="Search by name, email, or phone..."
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
                         style={{
                             padding: '8px 16px',
                             borderRadius: '20px',
                             border: '1px solid rgba(109,40,217,0.2)',
                             background: 'rgba(255,255,255,0.8)',
                             color: '#1e1b4b',
-                            outline: 'none'
+                            outline: 'none',
+                            width: '260px'
                         }}
                     />
                 </div>
-                
+
                 <div className="data-table-container">
                     <table className="data-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Client ID</th>
                                 <th>Name</th>
                                 <th>Email</th>
-                                <th>Company</th>
-                                <th>Phone</th>
+                                <th>Phone Number</th>
                                 <th>Registered Date</th>
                                 <th>Actions</th>
                             </tr>
@@ -77,36 +94,54 @@ function AdminClients() {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px' }}>
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>
                                         Loading clients...
                                     </td>
                                 </tr>
-                            ) : clients.length === 0 ? (
+                            ) : filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px' }}>
-                                        No clients found.
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--admin-text-secondary)' }}>
+                                        {search ? 'No clients match your search.' : 'No registered clients yet.'}
                                     </td>
                                 </tr>
                             ) : (
-                                clients.map(client => (
+                                filtered.map(client => (
                                     <tr key={client.id}>
-                                        <td style={{ fontWeight: 500 }}>CLI-{client.id}</td>
-                                        <td>{client.name}</td>
+                                        <td style={{ fontWeight: 600, color: 'var(--admin-accent)' }}>
+                                            CLI-{String(client.id).padStart(4, '0')}
+                                        </td>
+                                        <td style={{ fontWeight: 500 }}>{client.name}</td>
                                         <td style={{ color: 'var(--admin-accent)' }}>{client.email}</td>
-                                        <td>{client.companyName || 'N/A'}</td>
-                                        <td style={{ color: 'var(--admin-text-secondary)' }}>{client.phoneNumber || 'N/A'}</td>
                                         <td style={{ color: 'var(--admin-text-secondary)' }}>
-                                            {client.registeredDate ? new Date(client.registeredDate).toLocaleDateString() : 'N/A'}
+                                            {client.phoneNumber || 'N/A'}
+                                        </td>
+                                        <td style={{ color: 'var(--admin-text-secondary)' }}>
+                                            {client.registeredDate
+                                                ? new Date(client.registeredDate).toLocaleDateString('en-GB', {
+                                                    day: '2-digit', month: 'short', year: 'numeric'
+                                                })
+                                                : 'N/A'}
                                         </td>
                                         <td>
-                                            <button style={{ 
-                                                background: 'transparent', 
-                                                border: '1px solid var(--admin-accent)', 
+                                            <button style={{
+                                                background: 'linear-gradient(135deg, rgba(109,40,217,0.1), rgba(139,92,246,0.15))',
+                                                border: '1px solid var(--admin-accent)',
                                                 color: 'var(--admin-accent)',
-                                                padding: '4px 12px',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer'
-                                            }}>
+                                                padding: '5px 14px',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                fontWeight: 500,
+                                                transition: 'all 0.2s'
+                                            }}
+                                                onMouseEnter={e => {
+                                                    e.target.style.background = 'var(--admin-accent)';
+                                                    e.target.style.color = '#fff';
+                                                }}
+                                                onMouseLeave={e => {
+                                                    e.target.style.background = 'linear-gradient(135deg, rgba(109,40,217,0.1), rgba(139,92,246,0.15))';
+                                                    e.target.style.color = 'var(--admin-accent)';
+                                                }}
+                                            >
                                                 View
                                             </button>
                                         </td>

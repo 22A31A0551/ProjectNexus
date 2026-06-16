@@ -505,15 +505,24 @@
   color: #475569;
 }
 
-.modal-form-group select {
+.modal-form-group select,
+.modal-form-group input {
   width: 100%;
   background: #f8f7ff;
   border: 1px solid rgba(109, 40, 217, 0.2);
   color: #1e1b4b;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
   outline: none;
   font-size: 0.9rem;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.modal-form-group input:focus {
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
 }
 
 .modal-actions {

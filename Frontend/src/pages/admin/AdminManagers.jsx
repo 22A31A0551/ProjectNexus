@@ -1,10 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Admin.css';
 
-const MOCK_MANAGERS = [];
-
 function AdminManagers() {
-    const [managers] = useState(MOCK_MANAGERS);
+    const [managers, setManagers] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchManagers();
+    }, []);
+
+    const fetchManagers = async () => {
+        try {
+            setLoading(true);
+            const res = await fetch('http://localhost:8080/api/admin/managers/workload');
+            if (res.ok) {
+                setManagers(await res.json());
+            } else {
+                const fallback = await fetch('http://localhost:8080/api/admin/managers');
+                if (fallback.ok) {
+                    const fbData = await fallback.json();
+                    setManagers(fbData.map(m => ({ ...m, activeRequests: 0 })));
+                }
+            }
+        } catch (err) {
+            console.error('Failed to fetch managers:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="admin-page">
@@ -50,7 +73,7 @@ function AdminManagers() {
                         <svg viewBox="0 0 24 24" width="24" height="24"><rect fill="none" stroke="currentColor" strokeWidth="2" x="3" y="8" width="18" height="8" rx="2"/><line x1="7" y1="8" x2="7" y2="16"/><line x1="17" y1="8" x2="17" y2="16"/></svg>
                     </div>
                     <div className="stat-details">
-                        <span className="stat-value">{managers.reduce((sum, m) => sum + m.activeTickets, 0)}</span>
+                        <span className="stat-value">{managers.reduce((sum, m) => sum + (Number(m.activeRequests) || 0), 0)}</span>
                         <span className="stat-label">Active Tickets</span>
                     </div>
                 </div>
@@ -70,12 +93,19 @@ function AdminManagers() {
                             </tr>
                         </thead>
                         <tbody>
-                            {managers.length === 0 ? (
+                            {loading ? (
                                 <tr>
-                                    <td colSpan="5" style={{ textAlign: 'center', padding: '32px', color: '#475569' }}>No managers assigned yet.</td>
+                                    <td colSpan="5" style={{ textAlign: 'center', padding: '32px', color: '#475569' }}>Loading managers...</td>
+                                </tr>
+                            ) : managers.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" style={{ textAlign: 'center', padding: '32px', color: '#475569' }}>No managers found.</td>
                                 </tr>
                             ) : (
-                                managers.map(mgr => (
+                                managers.map(mgr => {
+                                    const load = Number(mgr.activeRequests) || 0;
+                                    const status = load === 0 ? 'Available' : 'Busy';
+                                    return (
                                     <tr key={mgr.id}>
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -85,7 +115,7 @@ function AdminManagers() {
                                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     fontWeight: 700, fontSize: '0.9rem', color: '#fff'
                                                 }}>
-                                                    {mgr.name.charAt(0)}
+                                                    {mgr.name ? mgr.name.charAt(0) : 'M'}
                                                 </div>
                                                 <div>
                                                     <div style={{ fontWeight: 600, color: '#1e1b4b' }}>{mgr.name}</div>
@@ -93,19 +123,19 @@ function AdminManagers() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>{mgr.department}</td>
+                                        <td>Management</td>
                                         <td>
                                             <span style={{
-                                                background: mgr.activeTickets > 3 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
-                                                color: mgr.activeTickets > 3 ? '#ef4444' : '#10b981',
+                                                background: load > 3 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
+                                                color: load > 3 ? '#ef4444' : '#10b981',
                                                 padding: '2px 10px', borderRadius: '20px', fontWeight: 500
                                             }}>
-                                                {mgr.activeTickets} tickets
+                                                {load} tickets
                                             </span>
                                         </td>
                                         <td>
-                                            <span className={`status-badge ${mgr.status === 'Available' ? 'active' : 'pending'}`}>
-                                                {mgr.status}
+                                            <span className={`status-badge ${status === 'Available' ? 'active' : 'pending'}`}>
+                                                {status}
                                             </span>
                                         </td>
                                         <td>
@@ -117,7 +147,8 @@ function AdminManagers() {
                                             </button>
                                         </td>
                                     </tr>
-                                ))
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>

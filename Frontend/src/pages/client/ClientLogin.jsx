@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './ClientLogin.css';
+import '../admin/Admin.css';
 
 function ClientLogin() {
     const [email, setEmail] = useState('');
@@ -28,110 +28,101 @@ function ClientLogin() {
                 localStorage.setItem('clientUser', JSON.stringify(clientData));
                 navigate('/client/dashboard');
             } else {
-                setError('No account found. Please contact your project manager.');
+                setError('No account found with this email. Please contact your project manager.');
             }
         } catch {
-            setError('Unable to connect. Please try again.');
+            setError('Unable to connect to server. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="cl-page">
-            {/* ── LEFT PANEL ── */}
-            <div className="cl-left">
-                {/* Stars */}
-                <div className="cl-stars" aria-hidden="true">
-                    {[...Array(60)].map((_, i) => (
-                        <span key={i} className="cl-star" style={{
-                            top: `${Math.random() * 100}%`,
-                            left: `${Math.random() * 100}%`,
-                            width: `${1 + Math.random() * 2}px`,
-                            height: `${1 + Math.random() * 2}px`,
-                            animationDelay: `${Math.random() * 4}s`,
-                            animationDuration: `${2 + Math.random() * 3}s`
-                        }} />
-                    ))}
-                </div>
+        <div className="admin-login-container" style={{
+            background: 'linear-gradient(135deg, #f5f3ff 0%, #e0e7ff 40%, #f3e8ff 80%, #fae8ff 100%)',
+            marginTop: '-50px'
+        }}>
+            <div className="login-bg-glow glow-1"></div>
+            <div className="login-bg-glow glow-2"></div>
 
-                {/* Brand */}
-                <div className="cl-brand">
-                    <div className="cl-brand-icon">✦</div>
-                    <span className="cl-brand-name">ProjectNexus</span>
-                </div>
-
-                {/* Geometric Crystal */}
-                <div className="cl-crystal-wrapper" aria-hidden="true">
-                    <div className="cl-crystal">
-                        <div className="cl-crystal-face cl-face-1" />
-                        <div className="cl-crystal-face cl-face-2" />
-                        <div className="cl-crystal-face cl-face-3" />
-                        <div className="cl-crystal-face cl-face-4" />
-                        <div className="cl-glow-ring cl-ring-1" />
-                        <div className="cl-glow-ring cl-ring-2" />
-                        <div className="cl-glow-ring cl-ring-3" />
+            <div className="glass-card login-card">
+                <div className="login-header">
+                    <div className="login-brand">
+                        <span className="brand-logo">✦</span>
+                        <span className="brand-name" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.3rem', fontWeight: 700, color: '#fff', WebkitTextFillColor: '#fff', background: 'none' }}>ProjectNexus</span>
                     </div>
-                </div>
-
-                {/* Tagline */}
-                <div className="cl-left-footer">
-                    <h2 className="cl-tagline">Your Complete<br /><span>Project Ecosystem</span></h2>
-                    <p className="cl-subtagline">Track projects, raise support requests,<br />and stay connected with your team.</p>
-                </div>
-            </div>
-
-            {/* ── RIGHT PANEL ── */}
-            <div className="cl-right">
-                <div className="cl-form-card">
-                    <div className="cl-form-header">
-                        <div className="cl-avatar-ring">✦</div>
-                        <h1>Welcome Back</h1>
-                        <p>Sign in to access your client portal</p>
-                    </div>
-
-                    {error && (
-                        <div className="cl-error">
-                            <span>⚠</span> {error}
-                        </div>
-                    )}
-
-                    <form onSubmit={handleLogin} className="cl-form">
-                        <div className="cl-field">
-                            <label htmlFor="client-email">Email Address</label>
-                            <div className="cl-input-box">
-                                <svg className="cl-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                    <polyline points="22,6 12,13 2,6"/>
-                                </svg>
-                                <input
-                                    id="client-email"
-                                    type="email"
-                                    value={email}
-                                    onChange={e => setEmail(e.target.value)}
-                                    placeholder="yourname@company.com"
-                                    required
-                                    autoFocus
-                                />
-                            </div>
-                        </div>
-
-                        <button type="submit" className="cl-btn" disabled={loading}>
-                            {loading ? (
-                                <span className="cl-loading"><span className="cl-spinner" />Authenticating…</span>
-                            ) : (
-                                <>Sign In to Portal <span className="cl-arrow">→</span></>
-                            )}
-                        </button>
-                    </form>
-
-                    <p className="cl-help">
-                        Need access? Contact <a href="mailto:support@projectnexus.com">support@projectnexus.com</a>
+                    <p style={{ color: 'rgba(160,165,181,0.9)', margin: '12px 0 0 0', fontSize: '0.95rem' }}>
+                        Enter your registered email to access your portal.
                     </p>
                 </div>
 
-                <p className="cl-copyright">© 2026 ProjectNexus · All rights reserved</p>
+                {error && (
+                    <div className="login-error">
+                        ⚠ {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleLogin} className="login-form">
+                    <div className="form-group">
+                        <label htmlFor="client-email">Email Address</label>
+                        <input
+                            type="email"
+                            id="client-email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            placeholder="yourname@company.com"
+                            required
+                            autoFocus
+                            style={{ background: 'rgba(0,0,0,0.3)', borderColor: 'rgba(123,97,255,0.25)', color: '#fff' }}
+                        />
+                    </div>
+
+                    <div className="form-options">
+                        <span style={{ color: 'rgba(160,165,181,0.7)', fontSize: '0.85rem' }}>
+                            🔐 Secure client access
+                        </span>
+                        <a href="mailto:support@projectnexus.com" className="forgot-password" style={{ fontSize: '0.85rem' }}>
+                            Need access?
+                        </a>
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="btn-primary login-btn"
+                        disabled={loading}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                    >
+                        {loading ? (
+                            <>
+                                <span className="cl-spinner" style={{
+                                    width: '16px', height: '16px',
+                                    border: '2px solid rgba(255,255,255,0.3)',
+                                    borderTopColor: '#fff',
+                                    borderRadius: '50%',
+                                    animation: 'spin 0.8s linear infinite',
+                                    display: 'inline-block'
+                                }} />
+                                Authenticating…
+                            </>
+                        ) : (
+                            <>Sign In to Portal →</>
+                        )}
+                    </button>
+                </form>
+
+                <p style={{
+                    textAlign: 'center',
+                    marginTop: '28px',
+                    fontSize: '0.82rem',
+                    color: 'rgba(160,165,181,0.6)'
+                }}>
+                    © 2026 ProjectNexus · All rights reserved
+                </p>
             </div>
+
+            <style>{`
+                @keyframes spin { to { transform: rotate(360deg); } }
+            `}</style>
         </div>
     );
 }
