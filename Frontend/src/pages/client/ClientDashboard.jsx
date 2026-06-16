@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './Client.css';
+import '../admin/Admin.css';
 
 function ClientDashboard() {
     const clientUser = JSON.parse(localStorage.getItem('clientUser'));
@@ -7,16 +7,8 @@ function ClientDashboard() {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Modal state
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedProjectId, setSelectedProjectId] = useState('');
-    const [requestType, setRequestType] = useState('Bug Fix');
-    const [description, setDescription] = useState('');
-
     useEffect(() => {
-        if (clientUser) {
-            fetchDashboardData();
-        }
+        if (clientUser) fetchDashboardData();
     }, []);
 
     const fetchDashboardData = async () => {
@@ -26,198 +18,83 @@ function ClientDashboard() {
                 fetch(`http://localhost:8080/api/client/${clientUser.id}/projects`),
                 fetch(`http://localhost:8080/api/client/${clientUser.id}/requests`)
             ]);
-
-            const projectsData = await projectsRes.json();
-            const requestsData = await requestsRes.json();
-
-            setProjects(projectsData);
-            setRequests(requestsData);
-        } catch (error) {
-            console.error("Error fetching dashboard data:", error);
+            setProjects(await projectsRes.json());
+            setRequests(await requestsRes.json());
+        } catch (err) {
+            console.error('Error fetching dashboard data:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSubmitRequest = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch('http://localhost:8080/api/client/requests', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    clientId: clientUser.id,
-                    projectId: selectedProjectId,
-                    requestType: requestType,
-                    description: description
-                })
-            });
-
-            if (response.ok) {
-                const newReq = await response.json();
-                setRequests([...requests, newReq]);
-                setIsModalOpen(false);
-                setSelectedProjectId('');
-                setDescription('');
-            } else {
-                alert("Failed to submit request.");
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Error submitting request.");
+    const stats = [
+        {
+            label: 'Your Projects',
+            value: projects.length,
+            svg: <svg viewBox="0 0 24 24" width="24" height="24"><path fill="none" stroke="currentColor" strokeWidth="2" d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        },
+        {
+            label: 'Pending Requests',
+            value: requests.filter(r => r.status === 'Pending').length,
+            svg: <svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2"/><polyline points="12 6 12 12 16 14" fill="none" stroke="currentColor" strokeWidth="2"/></svg>
+        },
+        {
+            label: 'Accepted Requests',
+            value: requests.filter(r => r.status === 'Accepted').length,
+            svg: <svg viewBox="0 0 24 24" width="24" height="24"><path fill="none" stroke="currentColor" strokeWidth="2" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        },
+        {
+            label: 'Total Requests',
+            value: requests.length,
+            svg: <svg viewBox="0 0 24 24" width="24" height="24"><path fill="none" stroke="currentColor" strokeWidth="2" d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2m12-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
         }
-    };
-
-    if (loading) {
-        return <p style={{ textAlign: 'center', marginTop: '50px' }}>Loading your dashboard...</p>;
-    }
+    ];
 
     return (
         <div>
-            <div className="client-dashboard-header">
-                <h1>Welcome, {clientUser.name}</h1>
-                <p>Manage your active projects and support requests below.</p>
+            {/* Page Header */}
+            <div className="page-header">
+                <div>
+                    <h2 style={{ color: '#1e1b4b' }}>Welcome back, {clientUser.name}</h2>
+                    <p style={{ color: '#475569' }}>Manage your active projects and support requests below.</p>
+                </div>
             </div>
 
-            {/* Dynamic notifications for accepted requests */}
+            {/* Accepted Request Notifications */}
             {requests.filter(r => r.status === 'Accepted').map(req => (
-                <div key={req.id} className="client-accepted-notification-alert" style={{
-                    background: '#ffffff',
-                    color: '#000000',
-                    border: '1px solid #e0e0e0',
-                    padding: '16px',
-                    borderRadius: '6px',
-                    marginBottom: '20px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-                }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <span style={{ fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>✦ Ticket Accepted</span>
-                        <span style={{ fontSize: '0.9rem' }}>An admin accepted your request <strong>"{req.requestType}"</strong> for project <strong>"{req.project?.projectName}"</strong>. We will connect shortly.</span>
-                        {req.assignedManager && (
-                            <span style={{ fontSize: '0.8rem', color: '#666' }}>Assigned Manager: <strong>{req.assignedManager}</strong></span>
-                        )}
+                <div key={req.id} className="glass-card" style={{ marginBottom: '16px', borderLeft: '3px solid #1e1b4b', display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+                    {/* Checkmark icon box */}
+                    <div style={{
+                        width: '36px', height: '36px', flexShrink: 0,
+                        background: '#1e1b4b', borderRadius: '8px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
+                    }}>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <strong style={{ color: '#1e1b4b', fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Ticket Accepted</strong>
+                        <p style={{ margin: '4px 0 0', color: '#475569', fontSize: '0.9rem' }}>
+                            Your request <strong>"{req.requestType}"</strong> for <strong>"{req.project?.projectName}"</strong> was accepted.
+                            {req.assignedManager && <span> Assigned Manager: <strong>{req.assignedManager}</strong></span>}
+                        </p>
                     </div>
                 </div>
             ))}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 className="client-section-title">Your Projects</h2>
-                <button 
-                    className="client-btn-primary" 
-                    style={{ width: 'auto', padding: '10px 20px', marginBottom: '16px' }}
-                    onClick={() => setIsModalOpen(true)}
-                >
-                    + Request Support
-                </button>
-            </div>
-
-            {projects.length === 0 ? (
-                <p style={{ color: 'var(--client-text-secondary)' }}>You have no registered projects.</p>
-            ) : (
-                <div className="project-grid">
-                    {projects.map(p => (
-                        <div key={p.id} className="project-card">
-                            <div className="project-meta">
-                                <span style={{ fontWeight: 600 }}>PRJ-{p.id}</span>
-                                <span className={`project-status ${p.status === 'Completed' ? 'active' : ''}`}>{p.status}</span>
-                            </div>
-                            <h3>{p.projectName}</h3>
-                            <p>{p.description}</p>
-                            
-                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: 'auto' }}>
-                                <strong>Tech Stack:</strong> {p.technologyStack || 'N/A'} <br/>
-                                <strong>Delivery Date:</strong> {p.deliveryDate || 'Not set'}
-                            </div>
+            {/* Stats Grid — same as AdminDashboardOverview */}
+            <div className="stats-grid" style={{ marginBottom: '24px' }}>
+                {stats.map((stat, i) => (
+                    <div key={i} className="glass-card stat-card">
+                        <div className="stat-icon-wrapper">{stat.svg}</div>
+                        <div className="stat-details">
+                            <span className="stat-label">{stat.label}</span>
+                            <h3 className="stat-value">{loading ? '...' : stat.value}</h3>
                         </div>
-                    ))}
-                </div>
-            )}
-
-            <h2 className="client-section-title" style={{ marginTop: '40px' }}>Your Support History</h2>
-            {requests.length === 0 ? (
-                <p style={{ color: 'var(--client-text-secondary)' }}>You haven't submitted any support requests yet.</p>
-            ) : (
-                <div className="client-table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Request Type</th>
-                                <th>Project</th>
-                                <th>Submitted On</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {requests.map(req => (
-                                <tr key={req.id}>
-                                    <td style={{ fontWeight: 500 }}>{req.requestType}</td>
-                                    <td>{req.project?.projectName}</td>
-                                    <td style={{ color: 'var(--client-text-secondary)' }}>
-                                        {new Date(req.submittedAt).toLocaleDateString()}
-                                    </td>
-                                    <td>
-                                        <span style={{ 
-                                            padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 500,
-                                            background: req.status === 'Pending' ? 'rgba(245, 158, 11, 0.15)' : req.status === 'Accepted' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                                            color: req.status === 'Pending' ? 'var(--client-warning)' : req.status === 'Accepted' ? 'var(--client-success)' : 'var(--client-danger)'
-                                        }}>
-                                            {req.status}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            {/* Modal for new request */}
-            {isModalOpen && (
-                <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h3>Submit Support Request</h3>
-                        <form onSubmit={handleSubmitRequest}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Select Project</label>
-                            <select 
-                                value={selectedProjectId} 
-                                onChange={(e) => setSelectedProjectId(e.target.value)}
-                                required
-                            >
-                                <option value="" disabled>-- Choose a project --</option>
-                                {projects.map(p => (
-                                    <option key={p.id} value={p.id}>{p.projectName}</option>
-                                ))}
-                            </select>
-
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Request Type</label>
-                            <select 
-                                value={requestType} 
-                                onChange={(e) => setRequestType(e.target.value)}
-                                required
-                            >
-                                <option value="Bug Fix">Bug Fix</option>
-                                <option value="Feature Enhancement">Feature Enhancement</option>
-                                <option value="Maintenance">Maintenance</option>
-                                <option value="General Inquiry">General Inquiry</option>
-                            </select>
-
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Description</label>
-                            <textarea 
-                                rows="5" 
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Please describe your issue or requirement..."
-                                required
-                            ></textarea>
-
-                            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                                <button type="button" className="btn-outline" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                                <button type="submit" className="client-btn-primary">Submit Request</button>
-                            </div>
-                        </form>
                     </div>
-                </div>
-            )}
+                ))}
+            </div>
         </div>
     );
 }

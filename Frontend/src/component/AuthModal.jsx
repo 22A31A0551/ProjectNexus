@@ -78,9 +78,13 @@ function AuthModal({ isOpen, onClose }) {
             }
 
             // Store logged in user in localStorage
-            localStorage.setItem('user', JSON.stringify(data));
+            const role = data.role?.toLowerCase() || 'client';
+            if (role === 'client') {
+                localStorage.setItem('clientUser', JSON.stringify(data));
+            } else {
+                localStorage.setItem('user', JSON.stringify(data));
+            }
 
-            const role = data.role.toLowerCase();
             setSuccessRole(role);
             setIsSuccess(true);
 
@@ -88,11 +92,20 @@ function AuthModal({ isOpen, onClose }) {
                 setIsSuccess(false);
                 setSuccessRole('');
                 onClose();
-                navigate('/' + role);
+                if (role === 'client') {
+                    navigate('/client/dashboard');
+                } else {
+                    navigate('/' + role);
+                }
             }, 3000);
 
         } catch (err) {
-            setError('Cannot connect to server. Please make sure the backend is running on port 8080.');
+            if (err instanceof SyntaxError) {
+                // This means the server returned an empty body (like a 401/403) instead of JSON
+                setError('Invalid email or password.');
+            } else {
+                setError('Cannot connect to server. Please make sure the backend is running on port 8080.');
+            }
         }
     };
 
@@ -127,7 +140,7 @@ function AuthModal({ isOpen, onClose }) {
             });
             const loginData = await loginRes.json();
             if (loginRes.ok) {
-                localStorage.setItem('user', JSON.stringify(loginData));
+                localStorage.setItem('clientUser', JSON.stringify(loginData));
             }
 
             setSuccessRole('client');
@@ -137,11 +150,15 @@ function AuthModal({ isOpen, onClose }) {
                 setIsSuccess(false);
                 setSuccessRole('');
                 onClose();
-                navigate('/client');
+                navigate('/client/dashboard');
             }, 3000);
 
         } catch (err) {
-            setError('Cannot connect to server. Please make sure the backend is running on port 8080.');
+            if (err instanceof SyntaxError) {
+                setError('Registration failed. Please try again.');
+            } else {
+                setError('Cannot connect to server. Please make sure the backend is running on port 8080.');
+            }
         }
     };
 

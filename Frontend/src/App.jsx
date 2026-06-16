@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ManagerDashboard from './pages/ManagerDashboard';
 import DeveloperDashboard from './pages/DeveloperDashboard';
@@ -8,6 +8,10 @@ import DeveloperDashboard from './pages/DeveloperDashboard';
 import ClientLayout from './pages/client/ClientLayout';
 import ClientLogin from './pages/client/ClientLogin';
 import ClientDashboard from './pages/client/ClientDashboard';
+import ClientProjects from './pages/client/ClientProjects';
+import ClientSupportActive from './pages/client/ClientSupportActive';
+import ClientSupportClosed from './pages/client/ClientSupportClosed';
+import ClientSupportPending from './pages/client/ClientSupportPending';
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -48,7 +52,12 @@ function App() {
         {/* Client Routes */}
         <Route path="/client/login" element={<ClientLogin />} />
         <Route path="/client" element={<ClientLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<ClientDashboard />} />
+          <Route path="projects" element={<ClientProjects />} />
+          <Route path="support/active" element={<ClientSupportActive />} />
+          <Route path="support/closed" element={<ClientSupportClosed />} />
+          <Route path="support/pending" element={<ClientSupportPending />} />
         </Route>
       </Routes>
     </Router>

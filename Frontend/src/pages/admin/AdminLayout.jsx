@@ -13,11 +13,18 @@ function AdminLayout() {
 
     const user = JSON.parse(localStorage.getItem('user') || '{"name": "Admin"}');
 
-    const availableManagers = [
-        'Ravi Shankar',
-        'Priya Patel',
-        'Sneha Reddy'
-    ];
+    const [managers, setManagers] = useState([]);
+
+    const fetchManagers = async () => {
+        try {
+            const res = await fetch('http://localhost:8080/api/admin/managers');
+            if (res.ok) {
+                setManagers(await res.json());
+            }
+        } catch (err) {
+            console.error('Error fetching managers for layout:', err);
+        }
+    };
 
     const fetchPendingRequests = async () => {
         try {
@@ -33,6 +40,7 @@ function AdminLayout() {
 
     useEffect(() => {
         fetchPendingRequests();
+        fetchManagers();
         // Poll every 10 seconds for new requests to make it dynamic
         const interval = setInterval(fetchPendingRequests, 10000);
         return () => clearInterval(interval);
@@ -198,8 +206,8 @@ function AdminLayout() {
                                 required
                             >
                                 <option value="">-- Select Manager --</option>
-                                {availableManagers.map(m => (
-                                    <option key={m} value={m}>{m}</option>
+                                {managers.map(m => (
+                                    <option key={m.id} value={m.name}>{m.name}</option>
                                 ))}
                             </select>
                         </div>

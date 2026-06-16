@@ -8,7 +8,8 @@ function AdminDashboardOverview() {
         activeRequests: 0,
         totalProjects: 0,
         pendingProjects: 0,
-        recentProjects: []
+        recentProjects: [],
+        recentRequests: []
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -81,6 +82,44 @@ function AdminDashboardOverview() {
         },
     ];
 
+    const statusStyle = (status) => {
+        if (status === 'Accepted')  return { background: 'rgba(34,197,94,0.12)',  color: '#16a34a', border: '1px solid #16a34a' };
+        if (status === 'Pending')   return { background: 'rgba(234,179,8,0.12)',  color: '#ca8a04', border: '1px solid #ca8a04' };
+        if (status === 'Rejected')  return { background: 'rgba(239,68,68,0.12)',  color: '#dc2626', border: '1px solid #dc2626' };
+        return { background: 'rgba(100,116,139,0.12)', color: '#475569', border: '1px solid #94a3b8' };
+    };
+
+    const typeIcons = {
+        'Bug Fix': (
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 2l1.5 1.5M14.5 3.5L16 2M9 7.5A3 3 0 0 1 15 7.5"/>
+                <path d="M6.5 10H4a1 1 0 0 0-1 1v1a4 4 0 0 0 2 3.46M17.5 10H20a1 1 0 0 1 1 1v1a4 4 0 0 1-2 3.46"/>
+                <path d="M5 19a7 7 0 0 0 14 0v-7a7 7 0 0 0-14 0v7z"/>
+                <line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/>
+            </svg>
+        ),
+        'Feature Enhancement': (
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+        ),
+        'Maintenance': (
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"/>
+            </svg>
+        ),
+        'General Inquiry': (
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+        ),
+    };
+    const defaultTypeIcon = (
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+    );
+
     return (
         <div className="admin-dashboard-overview">
             <div className="page-header">
@@ -114,39 +153,82 @@ function AdminDashboardOverview() {
             </div>
 
             <div className="dashboard-grid-bottom">
-                {/* Recent Projects Table */}
+                {/* Recent Service & Maintenance Requests */}
                 <div className="glass-card table-section">
                     <div className="section-header">
-                        <h3 style={{ color: '#1e1b4b' }}>Recent Project History</h3>
-                        <a href="/admin/projects" className="view-all-link">View All</a>
+                        <div>
+                            <h3 style={{ color: '#1e1b4b', margin: 0 }}>Recent Project History</h3>
+                            <p style={{ color: '#475569', fontSize: '0.82rem', margin: '4px 0 0' }}>
+                                Service &amp; maintenance requests submitted by clients
+                            </p>
+                        </div>
+                        <a href="/admin/requests/active" className="view-all-link">View All</a>
                     </div>
-                    
+
                     <div className="data-table-container">
                         <table className="data-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Project Name</th>
+                                    <th>Req ID</th>
+                                    <th>Type</th>
+                                    <th>Client</th>
+                                    <th>Project</th>
+                                    <th>Submitted</th>
                                     <th>Status</th>
-                                    <th>Delivery Date</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    <tr><td colSpan="4" style={{ textAlign: 'center' }}>Loading projects...</td></tr>
-                                ) : overviewData.recentProjects.length === 0 ? (
-                                    <tr><td colSpan="4" style={{ textAlign: 'center' }}>No projects found in the database.</td></tr>
+                                    <tr><td colSpan="6" style={{ textAlign: 'center', padding: '32px' }}>Loading...</td></tr>
+                                ) : (overviewData.recentRequests || []).length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" style={{ textAlign: 'center', padding: '32px', color: 'var(--admin-text-secondary)' }}>
+                                            No service or maintenance requests yet.
+                                        </td>
+                                    </tr>
                                 ) : (
-                                    overviewData.recentProjects.map(project => (
-                                        <tr key={project.id}>
-                                            <td style={{ fontWeight: 500 }}>PRJ-{project.id}</td>
-                                            <td>{project.projectName}</td>
+                                    (overviewData.recentRequests || []).map(req => (
+                                        <tr key={req.id}>
+                                            <td style={{ fontWeight: 600, color: 'var(--admin-accent)' }}>
+                                                REQ-{String(req.id).padStart(4, '0')}
+                                            </td>
                                             <td>
-                                                <span className={`status-badge-mono ${project.status === 'In Progress' ? 'status-in-progress' : 'status-completed'}`}>
-                                                    {project.status || 'N/A'}
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                                                    <span style={{
+                                                        width: '24px', height: '24px', background: '#f1f5f9',
+                                                        borderRadius: '5px', display: 'flex',
+                                                        alignItems: 'center', justifyContent: 'center',
+                                                        color: '#1e1b4b', flexShrink: 0
+                                                    }}>
+                                                        {typeIcons[req.requestType] || defaultTypeIcon}
+                                                    </span>
+                                                    <span>{req.requestType}</span>
                                                 </span>
                                             </td>
-                                            <td style={{ color: '#475569' }}>{project.deliveryDate || 'Not set'}</td>
+                                            <td style={{ color: 'var(--admin-accent)', fontWeight: 500 }}>
+                                                {req.client?.name || 'N/A'}
+                                            </td>
+                                            <td style={{ color: '#1e1b4b' }}>
+                                                {req.project?.projectName || 'N/A'}
+                                            </td>
+                                            <td style={{ color: '#475569', fontSize: '0.85rem' }}>
+                                                {req.submittedAt
+                                                    ? new Date(req.submittedAt).toLocaleDateString('en-GB', {
+                                                        day: '2-digit', month: 'short', year: 'numeric'
+                                                    })
+                                                    : 'N/A'}
+                                            </td>
+                                            <td>
+                                                <span style={{
+                                                    padding: '3px 10px',
+                                                    borderRadius: '20px',
+                                                    fontSize: '0.78rem',
+                                                    fontWeight: 600,
+                                                    ...statusStyle(req.status)
+                                                }}>
+                                                    {req.status}
+                                                </span>
+                                            </td>
                                         </tr>
                                     ))
                                 )}

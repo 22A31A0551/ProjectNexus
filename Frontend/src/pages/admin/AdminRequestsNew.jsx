@@ -6,13 +6,30 @@ function AdminRequestsNew() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedRequest, setSelectedRequest] = useState(null);
-
+    const [managers, setManagers] = useState([]);
     const [selectedManager, setSelectedManager] = useState('');
     const [showManagerModal, setShowManagerModal] = useState(false);
 
-    useEffect(() => {
-        fetchRequests();
-    }, []);
+    const fetchManagers = async () => {
+        try {
+            const res = await fetch('http://localhost:8080/api/admin/managers/workload');
+            if (res.ok) {
+                const data = await res.json();
+                console.log('Managers workload loaded:', data);
+                setManagers(data);
+            } else {
+                // Fallback to basic managers list
+                const fallback = await fetch('http://localhost:8080/api/admin/managers');
+                if (fallback.ok) {
+                    const fbData = await fallback.json();
+                    // Wrap in workload shape
+                    setManagers(fbData.map(m => ({ ...m, activeRequests: 0 })));
+                }
+            }
+        } catch (err) {
+            console.error('Failed to fetch managers:', err);
+        }
+    };
 
     const fetchRequests = async () => {
         try {
@@ -30,8 +47,14 @@ function AdminRequestsNew() {
         }
     };
 
+    useEffect(() => {
+        fetchRequests();
+        fetchManagers();
+    }, []);
+
     const handleAction = async (requestId, status) => {
         if (status === 'Accepted') {
+            await fetchManagers(); // Fetch fresh workloads right before opening
             setShowManagerModal(true);
             return;
         }
@@ -79,11 +102,6 @@ function AdminRequestsNew() {
         }
     };
 
-    const availableManagers = [
-        'Ravi Shankar',
-        'Priya Patel',
-        'Sneha Reddy'
-    ];
 
     return (
         <div className="admin-requests-page">
@@ -219,37 +237,149 @@ function AdminRequestsNew() {
             {/* Manager Assignment Modal Overlay */}
             {showManagerModal && selectedRequest && (
                 <div className="monochrome-modal-overlay">
-                    <div className="monochrome-modal">
-                        <h3>Assign Manager & Accept Ticket</h3>
-                        <p>Assigning support request: <strong>{selectedRequest.requestType}</strong> from <strong>{selectedRequest.client?.name}</strong></p>
-                        
-                        <div className="modal-form-group">
-                            <label>Select Available Manager</label>
-                            <select 
-                                value={selectedManager} 
-                                onChange={(e) => setSelectedManager(e.target.value)}
-                                required
-                            >
-                                <option value="">-- Select Manager --</option>
-                                {availableManagers.map(m => (
-                                    <option key={m} value={m}>{m}</option>
-                                ))}
-                            </select>
+                    <div className="monochrome-modal" style={{ maxWidth: '520px', width: '100%' }}>
+
+                        {/* Modal Header */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
+                            <div style={{
+                                width: '40px', height: '40px', background: '#1e1b4b',
+                                borderRadius: '10px', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', color: '#fff', flexShrink: 0
+                            }}>
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0 }}>Assign Manager & Accept Ticket</h3>
+                                <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
+                                    <strong>{selectedRequest.requestType}</strong> from <strong>{selectedRequest.client?.name}</strong>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Workload info note */}
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '8px',
+                            background: '#f8fafc', border: '1px solid #e2e8f0',
+                            borderRadius: '8px', padding: '10px 14px',
+                            marginBottom: '16px', marginTop: '12px'
+                        }}>
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            <span style={{ fontSize: '0.8rem', color: '#475569' }}>
+                                Managers are sorted by <strong>current workload</strong>. Pick the least-loaded one for faster resolution.
+                            </span>
+                        </div>
+
+                        {/* Manager Cards */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px', maxHeight: '300px', overflowY: 'auto' }}>
+                            {managers.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '24px', color: '#64748b', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
+                                    <p style={{ margin: '0 0 8px 0', fontWeight: 600 }}>No managers found.</p>
+                                    <p style={{ margin: 0, fontSize: '0.85rem' }}>Please ensure the backend is running and managers are seeded.</p>
+                                </div>
+                            ) : managers.map((m, idx) => {
+                                const isSelected = selectedManager === m.name;
+                                const isRecommended = idx === 0; // least loaded = first (sorted asc)
+                                const load = Number(m.activeRequests);
+                                const maxLoad = Math.max(...managers.map(x => Number(x.activeRequests)), 1);
+                                const pct = Math.round((load / maxLoad) * 100);
+                                const barColor = load === 0 ? '#16a34a' : load <= 2 ? '#ca8a04' : '#dc2626';
+                                const loadLabel = load === 0 ? 'Free' : load === 1 ? '1 task' : `${load} tasks`;
+
+                                return (
+                                    <div
+                                        key={m.id}
+                                        onClick={() => setSelectedManager(m.name)}
+                                        style={{
+                                            padding: '14px 16px',
+                                            borderRadius: '10px',
+                                            border: `2px solid ${isSelected ? '#1e1b4b' : '#e2e8f0'}`,
+                                            background: isSelected ? '#f0f0ff' : '#fff',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.18s',
+                                        }}
+                                        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.borderColor = '#94a3b8'; }}
+                                        onMouseLeave={e => { if (!isSelected) e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                {/* Avatar */}
+                                                <div style={{
+                                                    width: '34px', height: '34px',
+                                                    background: isSelected ? '#1e1b4b' : '#f1f5f9',
+                                                    borderRadius: '50%',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    color: isSelected ? '#fff' : '#475569',
+                                                    fontWeight: 700, fontSize: '0.85rem',
+                                                    flexShrink: 0,
+                                                }}>
+                                                    {m.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontWeight: 600, color: '#1e1b4b', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        {m.name}
+                                                        {isRecommended && (
+                                                            <span style={{
+                                                                background: '#dcfce7', color: '#16a34a',
+                                                                border: '1px solid #bbf7d0',
+                                                                borderRadius: '20px', padding: '1px 8px',
+                                                                fontSize: '0.68rem', fontWeight: 700,
+                                                            }}>★ Recommended</span>
+                                                        )}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{m.email}</div>
+                                                </div>
+                                            </div>
+                                            {/* Workload count */}
+                                            <span style={{
+                                                padding: '3px 10px', borderRadius: '20px',
+                                                fontSize: '0.75rem', fontWeight: 700,
+                                                background: load === 0 ? '#dcfce7' : load <= 2 ? '#fef9c3' : '#fee2e2',
+                                                color: barColor,
+                                                border: `1px solid ${barColor}33`,
+                                            }}>
+                                                {loadLabel}
+                                            </span>
+                                        </div>
+
+                                        {/* Workload progress bar */}
+                                        <div style={{ height: '5px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <div style={{
+                                                height: '100%', width: `${pct}%`,
+                                                background: barColor,
+                                                borderRadius: '4px',
+                                                transition: 'width 0.4s ease',
+                                                minWidth: load > 0 ? '4px' : '0',
+                                            }} />
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         <div className="modal-actions">
-                            <button 
-                                className="modal-btn-cancel" 
+                            <button
+                                className="modal-btn-cancel"
                                 onClick={() => { setShowManagerModal(false); setSelectedManager(''); }}
                             >
                                 Cancel
                             </button>
-                            <button 
-                                className="modal-btn-confirm" 
+                            <button
+                                className="modal-btn-confirm"
                                 onClick={handleConfirmAccept}
                                 disabled={!selectedManager}
+                                style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
                             >
-                                Assign & Accept
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                {selectedManager ? `Assign ${selectedManager} & Accept` : 'Assign & Accept'}
                             </button>
                         </div>
                     </div>
