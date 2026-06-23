@@ -14,6 +14,7 @@ function AuthModal({ isOpen, onClose }) {
     const [loginPassword, setLoginPassword] = useState('');
     const [regName, setRegName] = useState('');
     const [regEmail, setRegEmail] = useState('');
+    const [regPhone, setRegPhone] = useState('');
     const [regPassword, setRegPassword] = useState('');
     const [regConfirmPassword, setRegConfirmPassword] = useState('');
 
@@ -29,6 +30,7 @@ function AuthModal({ isOpen, onClose }) {
             setLoginPassword('');
             setRegName('');
             setRegEmail('');
+            setRegPhone('');
             setRegPassword('');
             setRegConfirmPassword('');
             setShowLoginPass(false);
@@ -122,7 +124,7 @@ function AuthModal({ isOpen, onClose }) {
             const response = await fetch('http://localhost:8080/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: regName, email: regEmail, password: regPassword }),
+                body: JSON.stringify({ name: regName, email: regEmail, phoneNumber: regPhone, password: regPassword }),
             });
 
             const data = await response.json();
@@ -333,6 +335,25 @@ function AuthModal({ isOpen, onClose }) {
                                         onChange={(e) => setRegEmail(e.target.value)}
                                         required
                                         autoComplete="email"
+                                    />
+                                </div>
+
+                                <div className="auth-field">
+                                    <label className="auth-label" htmlFor="reg-phone">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                        </svg>
+                                        Phone Number (Intl. Format)
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        id="reg-phone"
+                                        className="auth-input"
+                                        placeholder="+1 234 567 8900"
+                                        value={regPhone}
+                                        onChange={(e) => setRegPhone(e.target.value)}
+                                        required
+                                        autoComplete="tel"
                                     />
                                 </div>
 

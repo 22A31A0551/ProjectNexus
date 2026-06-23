@@ -150,6 +150,18 @@ public class AdminController {
         return ResponseEntity.ok(result);
     }
 
+    // --- Client Detail Endpoint (for admin view) ---
+    @GetMapping("/clients/{id}/details")
+    public ResponseEntity<Map<String, Object>> getClientDetails(@PathVariable Long id) {
+        return clientRepository.findById(id).map(client -> {
+            Map<String, Object> details = new HashMap<>();
+            details.put("client", client);
+            details.put("projects", projectRepository.findByClientId(id));
+            details.put("requests", supportRequestRepository.findByClientId(id));
+            return ResponseEntity.ok(details);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     // --- Clients Endpoints ---
     @GetMapping("/clients")
     public ResponseEntity<List<Client>> getAllClients() {

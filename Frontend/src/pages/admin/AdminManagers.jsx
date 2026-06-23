@@ -4,6 +4,21 @@ import './Admin.css';
 function AdminManagers() {
     const [managers, setManagers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [selectedManagerForAssign, setSelectedManagerForAssign] = useState(null);
+    const [selectedRequestToAssign, setSelectedRequestToAssign] = useState(null);
+
+    const fetchPendingRequests = async () => {
+        try {
+            const res = await fetch('http://localhost:8080/api/admin/requests/pending');
+            if (res.ok) {
+                setPendingRequests(await res.json());
+            }
+        } catch (err) {
+            console.error('Failed to fetch pending requests:', err);
+        }
+    };
 
     useEffect(() => {
         fetchManagers();
@@ -55,7 +70,7 @@ function AdminManagers() {
                         <svg viewBox="0 0 24 24" width="24" height="24"><path fill="none" stroke="currentColor" strokeWidth="2" d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
                     </div>
                     <div className="stat-details">
-                        <span className="stat-value">{managers.filter(m => m.status === 'Available').length}</span>
+                        <span className="stat-value">{managers.filter(m => (Number(m.activeRequests) || 0) === 0).length}</span>
                         <span className="stat-label">Available</span>
                     </div>
                 </div>
@@ -64,7 +79,7 @@ function AdminManagers() {
                         <svg viewBox="0 0 24 24" width="24" height="24"><polygon fill="none" stroke="currentColor" strokeWidth="2" points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     </div>
                     <div className="stat-details">
-                        <span className="stat-value">{managers.filter(m => m.status === 'Busy').length}</span>
+                        <span className="stat-value">{managers.filter(m => (Number(m.activeRequests) || 0) > 0).length}</span>
                         <span className="stat-label">Busy</span>
                     </div>
                 </div>
@@ -139,7 +154,13 @@ function AdminManagers() {
                                             </span>
                                         </td>
                                         <td>
-                                            <button style={{
+                                            <button 
+                                                onClick={() => {
+                                                    setSelectedManagerForAssign(mgr);
+                                                    setShowAssignModal(true);
+                                                    fetchPendingRequests();
+                                                }}
+                                                style={{
                                                 background: 'transparent', border: '1px solid var(--admin-accent)',
                                                 color: 'var(--admin-accent)', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer'
                                             }}>
@@ -154,6 +175,89 @@ function AdminManagers() {
                     </table>
                 </div>
             </div>
+
+            {/* Assign Ticket Modal Overlay */}
+            {showAssignModal && selectedManagerForAssign && (
+                <div className="monochrome-modal-overlay">
+                    <div className="monochrome-modal" style={{ maxWidth: '520px', width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                            <div style={{
+                                width: '40px', height: '40px', background: '#1e1b4b',
+                                borderRadius: '10px', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', color: '#fff', flexShrink: 0
+                            }}>
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0 }}>Assign Ticket to {selectedManagerForAssign.name}</h3>
+                                <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b' }}>
+                                    Select a pending request to assign
+                                </p>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px', maxHeight: '300px', overflowY: 'auto' }}>
+                            {pendingRequests.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '24px', color: '#64748b', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
+                                    <p style={{ margin: '0 0 8px 0', fontWeight: 600 }}>No pending requests found.</p>
+                                </div>
+                            ) : pendingRequests.map((req) => (
+                                <div
+                                    key={req.id}
+                                    onClick={() => setSelectedRequestToAssign(req.id)}
+                                    style={{
+                                        padding: '14px 16px',
+                                        borderRadius: '10px',
+                                        border: `2px solid ${selectedRequestToAssign === req.id ? '#1e1b4b' : '#e2e8f0'}`,
+                                        background: selectedRequestToAssign === req.id ? '#f0f0ff' : '#fff',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <div style={{ fontWeight: 600, color: '#1e1b4b' }}>{req.requestType}</div>
+                                    <div style={{ fontSize: '0.85rem', color: '#475569' }}>Project: {req.project?.projectName}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="modal-actions">
+                            <button
+                                className="modal-btn-cancel"
+                                onClick={() => { setShowAssignModal(false); setSelectedRequestToAssign(null); }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="modal-btn-confirm"
+                                onClick={async () => {
+                                    if (!selectedRequestToAssign) return;
+                                    try {
+                                        const res = await fetch(`http://localhost:8080/api/admin/requests/${selectedRequestToAssign}/status`, {
+                                            method: 'PUT',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ 
+                                                status: 'Accepted',
+                                                assignedManager: selectedManagerForAssign.name
+                                            })
+                                        });
+                                        if (res.ok) {
+                                            setShowAssignModal(false);
+                                            setSelectedRequestToAssign(null);
+                                            fetchManagers();
+                                        }
+                                    } catch (err) {
+                                        console.error(err);
+                                    }
+                                }}
+                                disabled={!selectedRequestToAssign}
+                            >
+                                Assign
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
