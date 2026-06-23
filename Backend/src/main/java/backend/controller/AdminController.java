@@ -102,12 +102,7 @@ public class AdminController {
 
     @GetMapping("/requests/history")
     public ResponseEntity<List<backend.model.SupportRequest>> getClosedRequests() {
-        List<backend.model.SupportRequest> accepted = supportRequestRepository.findByStatus("Accepted");
-        List<backend.model.SupportRequest> rejected = supportRequestRepository.findByStatus("Rejected");
-        List<backend.model.SupportRequest> combined = new java.util.ArrayList<>();
-        combined.addAll(accepted);
-        combined.addAll(rejected);
-        return ResponseEntity.ok(combined);
+        return ResponseEntity.ok(supportRequestRepository.findByStatus("Closed"));
     }
 
     // --- Managers Endpoint ---
@@ -224,5 +219,57 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to process project creation: " + e.getMessage());
         }
+    }
+
+    @PutMapping("/projects/{id}")
+    public ResponseEntity<?> updateProject(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        return projectRepository.findById(id).map(project -> {
+            if (payload.containsKey("projectName")) project.setProjectName((String) payload.get("projectName"));
+            if (payload.containsKey("description")) project.setDescription((String) payload.get("description"));
+            if (payload.containsKey("technologyStack")) project.setTechnologyStack((String) payload.get("technologyStack"));
+            if (payload.containsKey("status")) project.setStatus((String) payload.get("status"));
+            if (payload.containsKey("githubUrl")) project.setGithubUrl((String) payload.get("githubUrl"));
+            if (payload.containsKey("assignedManager")) project.setAssignedManager((String) payload.get("assignedManager"));
+            
+            if (payload.containsKey("price") && payload.get("price") != null) {
+                project.setPrice(Double.valueOf(payload.get("price").toString()));
+            }
+            if (payload.containsKey("deliveryDate") && payload.get("deliveryDate") != null) {
+                if (!payload.get("deliveryDate").toString().isEmpty()) {
+                    project.setDeliveryDate(java.time.LocalDate.parse(payload.get("deliveryDate").toString()));
+                }
+            }
+
+            if (payload.containsKey("clientEmail")) {
+                String clientEmail = (String) payload.get("clientEmail");
+                if (clientEmail != null && !clientEmail.trim().isEmpty()) {
+                    Client client = clientRepository.findAll().stream()
+                            .filter(c -> c.getEmail().equalsIgnoreCase(clientEmail))
+                            .findFirst()
+                            .orElse(null);
+                    
+                    if (client == null) {
+                        client = new Client();
+                        client.setName(payload.containsKey("clientName") ? (String) payload.get("clientName") : "Client");
+                        client.setEmail(clientEmail);
+                        client.setCompanyName("Company Client");
+                        client = clientRepository.save(client);
+                    } else if (payload.containsKey("clientName") && payload.get("clientName") != null && !((String) payload.get("clientName")).trim().isEmpty()) {
+                        client.setName((String) payload.get("clientName"));
+                        client = clientRepository.save(client);
+                    }
+                    project.setClient(client);
+                }
+            }
+            return ResponseEntity.ok(projectRepository.save(project));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/projects/{id}")
+    public ResponseEntity<?> deleteProject(@PathVariable Long id) {
+        return projectRepository.findById(id).map(project -> {
+            projectRepository.delete(project);
+            return ResponseEntity.ok().build();
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

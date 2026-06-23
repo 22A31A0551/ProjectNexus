@@ -28,7 +28,7 @@ function AdminHistory() {
             <div className="page-header">
                 <div>
                     <h2>Closed Ticket History</h2>
-                    <p>Complete log of all resolved and rejected support requests.</p>
+                    <p>Complete log of all successfully closed support requests.</p>
                 </div>
             </div>
 
@@ -63,7 +63,7 @@ function AdminHistory() {
                             ) : requests.length === 0 ? (
                                 <tr>
                                     <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--admin-text-secondary)' }}>
-                                        No closed tickets yet. Accepted or Rejected requests will appear here.
+                                        No closed tickets yet. Successfully closed requests will appear here.
                                     </td>
                                 </tr>
                             ) : (
@@ -77,7 +77,7 @@ function AdminHistory() {
                                             {new Date(req.submittedAt).toLocaleDateString()}
                                         </td>
                                         <td>
-                                            <span className={`status-badge ${req.status === 'Accepted' ? 'active' : 'closed'}`}>
+                                            <span className="status-badge closed">
                                                 {req.status}
                                             </span>
                                         </td>
