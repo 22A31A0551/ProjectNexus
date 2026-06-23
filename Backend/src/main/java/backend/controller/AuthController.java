@@ -49,7 +49,7 @@ public class AuthController {
             backend.model.Client newClient = new backend.model.Client(
                 request.getName(),
                 request.getEmail(),
-                "",
+                request.getPhoneNumber() != null ? request.getPhoneNumber() : "",
                 "Individual Client"
             );
             clientRepository.save(newClient);
@@ -104,6 +104,7 @@ public class AuthController {
         private String name;
         private String email;
         private String password;
+        private String phoneNumber;
     }
 
     @Data

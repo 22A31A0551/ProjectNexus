@@ -157,9 +157,9 @@ function AdminDashboardOverview() {
                 <div className="glass-card table-section">
                     <div className="section-header">
                         <div>
-                            <h3 style={{ color: '#1e1b4b', margin: 0 }}>Recent Project History</h3>
-                            <p style={{ color: '#475569', fontSize: '0.82rem', margin: '4px 0 0' }}>
-                                Service &amp; maintenance requests submitted by clients
+                            <h3 style={{ color: '#1e1b4b', margin: 0, fontSize: '1.25rem' }}>Recent Support Requests</h3>
+                            <p style={{ color: '#475569', fontSize: '0.95rem', margin: '4px 0 0' }}>
+                                Latest service and maintenance tickets submitted by clients
                             </p>
                         </div>
                         <a href="/admin/requests/active" className="view-all-link">View All</a>
