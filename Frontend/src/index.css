@@ -2442,4 +2442,20 @@ body:has(.dashboard-page) {
     max-width: 400px;
 }
 
+@media (max-width: 600px) {
+    .dashboard-coming-soon {
+        padding: 0 24px;
+    }
+    .dashboard-coming-soon h1 {
+        font-size: 28px;
+    }
+    .dashboard-coming-soon p {
+        font-size: 14px;
+    }
+    .dashboard-coming-soon .dashboard-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+}
+
 
