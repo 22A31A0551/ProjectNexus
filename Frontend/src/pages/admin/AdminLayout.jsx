@@ -10,6 +10,11 @@ function AdminLayout() {
     const [isNotificationOpen, setNotificationOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [selectedManager, setSelectedManager] = useState('');
+    const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        setMobileSidebarOpen(false);
+    }, [location.pathname]);
 
     const user = JSON.parse(localStorage.getItem('user') || '{"name": "Admin"}');
 
@@ -93,13 +98,26 @@ function AdminLayout() {
             {/* Topbar Navbar */}
             <header className="admin-navbar-top">
                 <div className="navbar-left">
+                    {/* Hamburger button - only visible on mobile */}
+                    <button
+                        className="admin-hamburger-btn"
+                        onClick={() => setMobileSidebarOpen(!isMobileSidebarOpen)}
+                        aria-label="Toggle menu"
+                    >
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            {isMobileSidebarOpen
+                                ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+                                : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
+                            }
+                        </svg>
+                    </button>
                     <span className="navbar-brand">✦ ProjectNexus</span>
                 </div>
                 <div className="navbar-right">
-                    {/* Notification Bell Outline */}
+                    {/* Notification Bell */}
                     <div className="navbar-action-item notification-wrapper">
-                        <button 
-                            className="monochrome-btn bell-btn" 
+                        <button
+                            className="monochrome-btn bell-btn"
                             onClick={() => setNotificationOpen(!isNotificationOpen)}
                             title="Notifications"
                         >
@@ -110,7 +128,7 @@ function AdminLayout() {
                                 <span className="monochrome-badge">{pendingRequests.length}</span>
                             )}
                         </button>
-                        
+
                         {isNotificationOpen && (
                             <div className="notification-dropdown-menu">
                                 <h4>New Request Notifications ({pendingRequests.length})</h4>
@@ -125,8 +143,8 @@ function AdminLayout() {
                                                     <span>From: {req.client?.name}</span>
                                                     <span>Proj: {req.project?.projectName}</span>
                                                 </div>
-                                                <button 
-                                                    className="mini-accept-btn" 
+                                                <button
+                                                    className="mini-accept-btn"
                                                     onClick={() => setSelectedRequest(req)}
                                                 >
                                                     Accept
@@ -139,10 +157,10 @@ function AdminLayout() {
                         )}
                     </div>
 
-                    <div className="navbar-action-item">
+                    <div className="navbar-action-item admin-badge-item">
                         <span className="admin-status-btn">ADMIN</span>
                     </div>
-                    
+
                     <div className="navbar-action-item">
                         <button className="monochrome-logout-btn" onClick={handleLogout}>Logout</button>
                     </div>
@@ -150,30 +168,38 @@ function AdminLayout() {
             </header>
 
             <div className="admin-layout-body">
-                {/* Sidebar below navbar */}
-                <aside className="admin-sidebar-side">
+                {/* Mobile sidebar backdrop */}
+                {isMobileSidebarOpen && (
+                    <div
+                        className="admin-mobile-backdrop"
+                        onClick={() => setMobileSidebarOpen(false)}
+                    />
+                )}
+
+                {/* Sidebar */}
+                <aside className={`admin-sidebar-side ${isMobileSidebarOpen ? 'mobile-open' : ''}`}>
                     <nav className="sidebar-nav-container">
                         <div className="menu-group">
-                            <button 
+                            <button
                                 className={`menu-header-btn ${isDashboardOpen ? 'expanded' : ''}`}
                                 onClick={() => setDashboardOpen(!isDashboardOpen)}
                             >
                                 <span className="menu-header-text">Dashboard</span>
                                 <span className="arrow-icon">{isDashboardOpen ? '▼' : '▶'}</span>
                             </button>
-                            
+
                             {isDashboardOpen && (
                                 <div className="menu-submenu">
-                                    <Link 
-                                        to="/admin" 
+                                    <Link
+                                        to="/admin"
                                         className={`submenu-item ${location.pathname === '/admin' ? 'active' : ''}`}
                                     >
                                         Overview
                                     </Link>
                                     {navItems.map((item) => (
-                                        <Link 
-                                            key={item.path} 
-                                            to={item.path} 
+                                        <Link
+                                            key={item.path}
+                                            to={item.path}
                                             className={`submenu-item ${location.pathname === item.path ? 'active' : ''}`}
                                         >
                                             {item.label}
@@ -191,17 +217,17 @@ function AdminLayout() {
                 </main>
             </div>
 
-            {/* Manager Assignment Modal for accepting requests */}
+            {/* Manager Assignment Modal */}
             {selectedRequest && (
                 <div className="monochrome-modal-overlay">
                     <div className="monochrome-modal">
                         <h3>Assign Manager & Accept Ticket</h3>
                         <p>Assigning support request: <strong>{selectedRequest.requestType}</strong> from <strong>{selectedRequest.client?.name}</strong></p>
-                        
+
                         <div className="modal-form-group">
                             <label>Select Available Manager</label>
-                            <select 
-                                value={selectedManager} 
+                            <select
+                                value={selectedManager}
                                 onChange={(e) => setSelectedManager(e.target.value)}
                                 required
                             >
@@ -213,14 +239,14 @@ function AdminLayout() {
                         </div>
 
                         <div className="modal-actions">
-                            <button 
-                                className="modal-btn-cancel" 
+                            <button
+                                className="modal-btn-cancel"
                                 onClick={() => { setSelectedRequest(null); setSelectedManager(''); }}
                             >
                                 Cancel
                             </button>
-                            <button 
-                                className="modal-btn-confirm" 
+                            <button
+                                className="modal-btn-confirm"
                                 onClick={() => handleAcceptRequest(selectedRequest.id)}
                                 disabled={!selectedManager}
                             >
@@ -235,3 +261,4 @@ function AdminLayout() {
 }
 
 export default AdminLayout;
+
