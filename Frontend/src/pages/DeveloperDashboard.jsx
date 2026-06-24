@@ -23,6 +23,9 @@ function DeveloperDashboard() {
             <div className="dashboard-coming-soon">
                 <div className="dashboard-icon">💻</div>
                 <h1>Developer Dashboard</h1>
+                <p style={{ fontSize: '1.2rem', margin: '10px 0', color: '#10b981' }}>
+                    Welcome back, <strong>{user.name || 'Developer'}</strong>! (Key: {user.key || 'N/A'})
+                </p>
                 <p>This page is under construction. Come back soon!</p>
             </div>
         </div>

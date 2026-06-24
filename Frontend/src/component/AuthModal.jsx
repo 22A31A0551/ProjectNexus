@@ -23,6 +23,11 @@ function AuthModal({ isOpen, onClose }) {
     const [showRegPass, setShowRegPass] = useState(false);
     const [showRegConfirmPass, setShowRegConfirmPass] = useState(false);
 
+    const [showKeyPrompt, setShowKeyPrompt] = useState(false);
+    const [keyRole, setKeyRole] = useState('');
+    const [tempUserData, setTempUserData] = useState(null);
+    const [enteredKey, setEnteredKey] = useState('');
+
     // Reset forms when modal closes
     useEffect(() => {
         if (!isOpen) {
@@ -39,6 +44,10 @@ function AuthModal({ isOpen, onClose }) {
             setIsSuccess(false);
             setSuccessRole('');
             setError('');
+            setShowKeyPrompt(false);
+            setKeyRole('');
+            setTempUserData(null);
+            setEnteredKey('');
         }
     }, [isOpen]);
 
@@ -79,8 +88,17 @@ function AuthModal({ isOpen, onClose }) {
                 return;
             }
 
-            // Store logged in user in localStorage
             const role = data.role?.toLowerCase() || 'client';
+            
+            // If manager or developer, prompt for their specific key
+            if (role === 'manager' || role === 'developer') {
+                setTempUserData(data);
+                setKeyRole(role);
+                setShowKeyPrompt(true);
+                setEnteredKey('');
+                return;
+            }
+
             if (role === 'client') {
                 localStorage.setItem('clientUser', JSON.stringify(data));
             } else {
@@ -103,11 +121,82 @@ function AuthModal({ isOpen, onClose }) {
 
         } catch (err) {
             if (err instanceof SyntaxError) {
-                // This means the server returned an empty body (like a 401/403) instead of JSON
                 setError('Invalid email or password.');
             } else {
                 setError('Cannot connect to server. Please make sure the backend is running on port 8080.');
             }
+        }
+    };
+
+    const handleKeySubmit = (e) => {
+        e.preventDefault();
+        setError('');
+
+        const normalizedKey = enteredKey.trim().toUpperCase();
+
+        if (keyRole === 'manager') {
+            const validKeys = {
+                'MGR1': 'manager1',
+                'MGR2': 'manager2',
+                'MGR3': 'manager3',
+                'MGR4': 'manager4',
+                'MGR5': 'manager5'
+            };
+
+            if (!validKeys[normalizedKey]) {
+                setError('Invalid key. Please enter a valid manager key (mgr1 - mgr5).');
+                return;
+            }
+
+            const finalUser = {
+                ...tempUserData,
+                name: validKeys[normalizedKey],
+                key: normalizedKey
+            };
+
+            localStorage.setItem('user', JSON.stringify(finalUser));
+            setShowKeyPrompt(false);
+            setSuccessRole('manager');
+            setIsSuccess(true);
+
+            setTimeout(() => {
+                setIsSuccess(false);
+                setSuccessRole('');
+                onClose();
+                navigate('/manager');
+            }, 3000);
+
+        } else if (keyRole === 'developer') {
+            const validKeys = {
+                'DEV1': 'Kiran Kumar',
+                'DEV2': 'Divya Rao',
+                'DEV3': 'Sai Teja',
+                'DEV4': 'Lakshmi Naidu',
+                'DEV5': 'Venkat Raju'
+            };
+
+            if (!validKeys[normalizedKey]) {
+                setError('Invalid key. Please enter a valid developer key (dev1 - dev5).');
+                return;
+            }
+
+            const finalUser = {
+                ...tempUserData,
+                name: validKeys[normalizedKey],
+                key: normalizedKey
+            };
+
+            localStorage.setItem('user', JSON.stringify(finalUser));
+            setShowKeyPrompt(false);
+            setSuccessRole('developer');
+            setIsSuccess(true);
+
+            setTimeout(() => {
+                setIsSuccess(false);
+                setSuccessRole('');
+                onClose();
+                navigate('/developer');
+            }, 3000);
         }
     };
 
@@ -195,6 +284,54 @@ function AuthModal({ isOpen, onClose }) {
                             <div className="auth-loader-progress"></div>
                         </div>
                         <p className="auth-redirect-text">Opening your dashboard...</p>
+                    </div>
+                ) : showKeyPrompt ? (
+                    /* Key Prompt View */
+                    <div className="auth-key-prompt-view">
+                        <div className="auth-header">
+                            <div className="auth-logo-icon">🔑</div>
+                            <h2 className="auth-title">Enter Access Key</h2>
+                            <p className="auth-subtitle">
+                                Please enter your unique access key to verify your identity
+                            </p>
+                        </div>
+
+                        {error && (
+                            <div className="auth-error-banner">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                                <span>{error}</span>
+                            </div>
+                        )}
+
+                        <form className="auth-form" onSubmit={handleKeySubmit}>
+                            <div className="auth-field">
+                                <label className="auth-label" htmlFor="access-key">
+                                    Access Key
+                                </label>
+                                <input
+                                    type="password"
+                                    id="access-key"
+                                    className="auth-input"
+                                    placeholder={keyRole === 'manager' ? 'e.g. MGR1' : 'e.g. DEV1'}
+                                    value={enteredKey}
+                                    onChange={(e) => setEnteredKey(e.target.value)}
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+
+                            <button type="submit" className="auth-submit-btn">
+                                <span>Verify & Enter</span>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </button>
+                        </form>
                     </div>
                 ) : (
                     <>

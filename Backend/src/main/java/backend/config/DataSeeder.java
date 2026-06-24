@@ -30,24 +30,15 @@ public class DataSeeder implements CommandLineRunner {
             System.out.println("Seeded default Admin user: admin@gmail.com / 1234");
         }
 
-        // Seed 5 Manager accounts
-        String[][] managers = {
-            {"Manager 1", "manager1@nexus.com"},
-            {"Manager 2", "manager2@nexus.com"},
-            {"Manager 3", "manager3@nexus.com"},
-            {"Manager 4", "manager4@nexus.com"},
-            {"Manager 5", "manager5@nexus.com"}
-        };
-        for (String[] m : managers) {
-            if (userRepository.findByEmail(m[1]).isEmpty()) {
-                userRepository.save(User.builder()
-                    .name(m[0])
-                    .email(m[1])
-                    .password(passwordEncoder.encode("1234"))
-                    .role("MANAGER")
-                    .build());
-                System.out.println("Seeded manager: " + m[1] + " / 1234");
-            }
+        // Seed shared manager user
+        if (userRepository.findByEmail("manager@gmail.com").isEmpty()) {
+            userRepository.save(User.builder()
+                .name("Manager")
+                .email("manager@gmail.com")
+                .password(passwordEncoder.encode("1234"))
+                .role("MANAGER")
+                .build());
+            System.out.println("Seeded default Manager user: manager@gmail.com / 1234");
         }
 
         // Seed Developer user
