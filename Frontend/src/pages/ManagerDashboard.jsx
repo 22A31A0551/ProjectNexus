@@ -23,6 +23,9 @@ function ManagerDashboard() {
             <div className="dashboard-coming-soon">
                 <div className="dashboard-icon">📋</div>
                 <h1>Manager Dashboard</h1>
+                <p style={{ fontSize: '1.2rem', margin: '10px 0', color: '#6366f1' }}>
+                    Welcome back, <strong>{user.name || 'Manager'}</strong>! (Key: {user.key || 'N/A'})
+                </p>
                 <p>This page is under construction. Come back soon!</p>
             </div>
         </div>
