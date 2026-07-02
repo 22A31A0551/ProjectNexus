@@ -23,9 +23,16 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Autowired
     private backend.repository.SupportRequestRepository supportRequestRepository;
 
+    @Autowired
+    private backend.repository.UserRepository userRepository;
+
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     @Override
     public void run(String... args) throws Exception {
         seedClients();
+        seedDevelopers();
     }
 
     private void seedClients() {
@@ -51,6 +58,23 @@ public class DatabaseSeeder implements CommandLineRunner {
             );
             clientRepository.save(client2);
             System.out.println("Restored Client 2.");
+        }
+    }
+
+    private void seedDevelopers() {
+        String sharedEmail = "developer@gmail.com";
+        String defaultPass = passwordEncoder.encode("password");
+
+        // Seed single shared user for login
+        if (userRepository.findByEmail(sharedEmail).isEmpty()) {
+            backend.model.User devUser = backend.model.User.builder()
+                    .name("Developer")
+                    .email(sharedEmail)
+                    .password(defaultPass)
+                    .role("DEVELOPER")
+                    .build();
+            userRepository.save(devUser);
+            System.out.println("Seeded shared developer account developer@gmail.com");
         }
     }
 }

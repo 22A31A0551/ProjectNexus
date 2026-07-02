@@ -34,6 +34,9 @@ public class SupportRequest {
     @Column(name = "assigned_manager")
     private String assignedManager;
 
+    @Column(name = "assigned_developer")
+    private String assignedDeveloper;
+
     @PrePersist
     protected void onCreate() {
         submittedAt = LocalDateTime.now();
@@ -76,4 +79,7 @@ public class SupportRequest {
 
     public String getAssignedManager() { return assignedManager; }
     public void setAssignedManager(String assignedManager) { this.assignedManager = assignedManager; }
+
+    public String getAssignedDeveloper() { return assignedDeveloper; }
+    public void setAssignedDeveloper(String assignedDeveloper) { this.assignedDeveloper = assignedDeveloper; }
 }

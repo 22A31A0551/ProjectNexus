@@ -10,4 +10,7 @@ import java.util.List;
 public interface SupportRequestRepository extends JpaRepository<SupportRequest, Long> {
     List<SupportRequest> findByStatus(String status);
     List<SupportRequest> findByClientId(Long clientId);
+    List<SupportRequest> findByStatusAndAssignedManager(String status, String assignedManager);
+    List<SupportRequest> findByAssignedManager(String assignedManager);
 }
+
