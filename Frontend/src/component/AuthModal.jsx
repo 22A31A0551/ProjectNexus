@@ -136,11 +136,11 @@ function AuthModal({ isOpen, onClose }) {
 
         if (keyRole === 'manager') {
             const validKeys = {
-                'MGR1': 'manager1',
-                'MGR2': 'manager2',
-                'MGR3': 'manager3',
-                'MGR4': 'manager4',
-                'MGR5': 'manager5'
+                'MGR1': 'Manager 1',
+                'MGR2': 'Manager 2',
+                'MGR3': 'Manager 3',
+                'MGR4': 'Manager 4',
+                'MGR5': 'Manager 5'
             };
 
             if (!validKeys[normalizedKey]) {
@@ -163,7 +163,7 @@ function AuthModal({ isOpen, onClose }) {
                 setIsSuccess(false);
                 setSuccessRole('');
                 onClose();
-                navigate('/manager');
+                navigate('/manager/overview');
             }, 3000);
 
         } else if (keyRole === 'developer') {

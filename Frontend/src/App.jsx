@@ -1,8 +1,16 @@
 import './App.css'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import ManagerDashboard from './pages/ManagerDashboard';
 import DeveloperDashboard from './pages/DeveloperDashboard';
+
+// Manager Pages
+import ManagerLogin from './pages/manager/ManagerLogin';
+import ManagerLayout from './pages/manager/ManagerLayout';
+import ManagerOverview from './pages/manager/ManagerOverview';
+import ManagerActiveTickets from './pages/manager/ManagerActiveTickets';
+import ManagerPendingTickets from './pages/manager/ManagerPendingTickets';
+import ManagerClosedTickets from './pages/manager/ManagerClosedTickets';
+import ManagerDeveloperAssignment from './pages/manager/ManagerDeveloperAssignment';
 
 // Client Pages
 import ClientLayout from './pages/client/ClientLayout';
@@ -46,7 +54,17 @@ function App() {
           <Route path="history" element={<AdminHistory />} />
         </Route>
 
-        <Route path="/manager" element={<ManagerDashboard />} />
+        {/* Manager Routes */}
+        <Route path="/manager/login" element={<ManagerLogin />} />
+        <Route path="/manager" element={<ManagerLayout />}>
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<ManagerOverview />} />
+          <Route path="tickets/active" element={<ManagerActiveTickets />} />
+          <Route path="tickets/pending" element={<ManagerPendingTickets />} />
+          <Route path="tickets/closed" element={<ManagerClosedTickets />} />
+          <Route path="developers" element={<ManagerDeveloperAssignment />} />
+        </Route>
+
         <Route path="/developer" element={<DeveloperDashboard />} />
         
         {/* Client Routes */}
@@ -65,3 +83,4 @@ function App() {
 }
 
 export default App;
+

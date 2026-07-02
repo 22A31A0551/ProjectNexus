@@ -44,7 +44,7 @@ public class DataSeeder implements CommandLineRunner {
         // Seed Developer user
         if (userRepository.findByEmail("developer@gmail.com").isEmpty()) {
             userRepository.save(User.builder()
-                .name("Software Developer")
+                .name("Developer")
                 .email("developer@gmail.com")
                 .password(passwordEncoder.encode("1234"))
                 .role("DEVELOPER")
