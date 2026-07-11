@@ -1,7 +1,11 @@
 import './App.css'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import DeveloperDashboard from './pages/DeveloperDashboard';
+import DeveloperLayout from './pages/developer/DeveloperLayout';
+import DeveloperOverview from './pages/developer/DeveloperOverview';
+import DeveloperActiveTickets from './pages/developer/DeveloperActiveTickets';
+import DeveloperPendingTickets from './pages/developer/DeveloperPendingTickets';
+import DeveloperClosedTickets from './pages/developer/DeveloperClosedTickets';
 
 // Manager Pages
 import ManagerLogin from './pages/manager/ManagerLogin';
@@ -65,7 +69,14 @@ function App() {
           <Route path="developers" element={<ManagerDeveloperAssignment />} />
         </Route>
 
-        <Route path="/developer" element={<DeveloperDashboard />} />
+        {/* Developer Routes */}
+        <Route path="/developer" element={<DeveloperLayout />}>
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<DeveloperOverview />} />
+          <Route path="projects/active" element={<DeveloperActiveTickets />} />
+          <Route path="projects/pending" element={<DeveloperPendingTickets />} />
+          <Route path="projects/closed" element={<DeveloperClosedTickets />} />
+        </Route>
         
         {/* Client Routes */}
         <Route path="/client/login" element={<ClientLogin />} />

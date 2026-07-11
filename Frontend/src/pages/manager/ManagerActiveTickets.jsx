@@ -223,7 +223,20 @@ function ManagerActiveTickets() {
                                         </td>
                                         <td>
                                             {ticket.assignedDeveloper ? (
-                                                <span className="mgr-badge assigned">{ticket.assignedDeveloper}</span>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <span className="mgr-badge assigned" style={{ width: 'fit-content' }}>
+                                                        {ticket.assignedDeveloper}
+                                                    </span>
+                                                    {ticket.developerAccepted ? (
+                                                        <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 600 }}>
+                                                            ✓ Accepted & Working
+                                                        </span>
+                                                    ) : (
+                                                        <span style={{ fontSize: '0.72rem', color: '#f59e0b', fontWeight: 600 }}>
+                                                            ⏳ Awaiting Acceptance
+                                                        </span>
+                                                    )}
+                                                </div>
                                             ) : (
                                                 <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>Not assigned</span>
                                             )}
@@ -275,7 +288,7 @@ function ManagerActiveTickets() {
                                 </p>
                             ) : (
                                 developers
-                                .filter(dev => dev.name && !dev.name.equalsIgnoreCase("Developer") && !dev.name.equalsIgnoreCase("Software Developer"))
+                                .filter(dev => dev.name && dev.name.toLowerCase() !== "developer" && dev.name.toLowerCase() !== "software developer")
                                 .map((dev, i) => {
                                     const wl = getWorkloadLabel(dev.activeTickets);
                                     return (
