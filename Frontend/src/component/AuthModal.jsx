@@ -195,7 +195,7 @@ function AuthModal({ isOpen, onClose }) {
                 setIsSuccess(false);
                 setSuccessRole('');
                 onClose();
-                navigate('/developer');
+                navigate('/developer/overview');
             }, 3000);
         }
     };

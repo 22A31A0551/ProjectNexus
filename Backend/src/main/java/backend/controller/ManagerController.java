@@ -157,6 +157,7 @@ public class ManagerController {
         return supportRequestRepository.findById(id).map(ticket -> {
             if (payload.containsKey("developer")) {
                 ticket.setAssignedDeveloper(payload.get("developer"));
+                ticket.setDeveloperAccepted(false);
             }
             return ResponseEntity.ok(supportRequestRepository.save(ticket));
         }).orElse(ResponseEntity.notFound().build());

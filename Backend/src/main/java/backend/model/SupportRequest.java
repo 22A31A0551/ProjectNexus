@@ -37,11 +37,17 @@ public class SupportRequest {
     @Column(name = "assigned_developer")
     private String assignedDeveloper;
 
+    @Column(name = "developer_accepted")
+    private Boolean developerAccepted = false;
+
     @PrePersist
     protected void onCreate() {
         submittedAt = LocalDateTime.now();
         if (status == null) {
             status = "Pending";
+        }
+        if (developerAccepted == null) {
+            developerAccepted = false;
         }
     }
 
@@ -82,4 +88,7 @@ public class SupportRequest {
 
     public String getAssignedDeveloper() { return assignedDeveloper; }
     public void setAssignedDeveloper(String assignedDeveloper) { this.assignedDeveloper = assignedDeveloper; }
+
+    public Boolean getDeveloperAccepted() { return developerAccepted; }
+    public void setDeveloperAccepted(Boolean developerAccepted) { this.developerAccepted = developerAccepted; }
 }
