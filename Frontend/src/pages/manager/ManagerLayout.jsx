@@ -64,6 +64,15 @@ function ManagerLayout() {
     const [counts, setCounts] = useState({ activeCount: 0, pendingCount: 0 });
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    useEffect(() => {
+        if (!user || user.role !== 'MANAGER') {
+            navigate('/manager/login');
+        }
+    }, [navigate]);
+
+    if (!user || user.role !== 'MANAGER') return null;
+
     const managerName = user.name || 'Manager';
 
     // Fetch overview counts for sidebar badges

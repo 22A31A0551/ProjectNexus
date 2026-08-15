@@ -53,6 +53,15 @@ function DeveloperLayout() {
     const [counts, setCounts] = useState({ activeCount: 0, pendingCount: 0 });
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    useEffect(() => {
+        if (!user || user.role !== 'DEVELOPER') {
+            navigate('/');
+        }
+    }, [navigate]);
+
+    if (!user || user.role !== 'DEVELOPER') return null;
+
     const devName = user.name || 'Developer';
 
     // Fetch overview counts for sidebar badges

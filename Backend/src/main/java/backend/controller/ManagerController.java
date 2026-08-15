@@ -100,9 +100,28 @@ public class ManagerController {
     public ResponseEntity<List<Map<String, Object>>> getDeveloperWorkload() {
         // Get all users with DEVELOPER role
         List<User> developers = userRepository.findByRole("DEVELOPER");
+        List<SupportRequest> allActive = supportRequestRepository.findByStatus("Accepted");
+        List<Map<String, Object>> result = new ArrayList<>();
 
-        // If no developers in DB, return fallback mock developers
-        if (developers.isEmpty()) {
+        for (User dev : developers) {
+            // Exclude the generic shared account name
+            if (dev.getName() != null && (dev.getName().equalsIgnoreCase("Developer") || dev.getName().equalsIgnoreCase("Software Developer"))) {
+                continue;
+            }
+            long count = allActive.stream()
+                    .filter(r -> dev.getName() != null && dev.getName().equalsIgnoreCase(r.getAssignedDeveloper()))
+                    .count();
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("id", dev.getId());
+            entry.put("name", dev.getName());
+            entry.put("email", dev.getEmail());
+            entry.put("skills", dev.getSkills() != null ? dev.getSkills() : "");
+            entry.put("activeTickets", count);
+            result.add(entry);
+        }
+
+        // If no developers in DB (other than generic one), return fallback mock developers
+        if (result.isEmpty()) {
             List<Map<String, Object>> mockDevs = new ArrayList<>();
             String[][] mockData = {
                 {"1", "Kiran Kumar", "kiran@projectnexus.com", "React, Node.js"},
@@ -111,7 +130,6 @@ public class ManagerController {
                 {"4", "Lakshmi Naidu", "lakshmi@projectnexus.com", "QA, Selenium"},
                 {"5", "Venkat Raju", "venkat@projectnexus.com", "AWS, DevOps"}
             };
-            List<SupportRequest> allActive = supportRequestRepository.findByStatus("Accepted");
             for (String[] dev : mockData) {
                 long count = allActive.stream()
                         .filter(r -> dev[1].equalsIgnoreCase(r.getAssignedDeveloper()))
@@ -127,24 +145,6 @@ public class ManagerController {
             return ResponseEntity.ok(mockDevs);
         }
 
-        List<SupportRequest> allActive = supportRequestRepository.findByStatus("Accepted");
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (User dev : developers) {
-            // Exclude the generic shared account name
-            if (dev.getName() != null && (dev.getName().equalsIgnoreCase("Developer") || dev.getName().equalsIgnoreCase("Software Developer"))) {
-                continue;
-            }
-            long count = allActive.stream()
-                    .filter(r -> dev.getName() != null && dev.getName().equalsIgnoreCase(r.getAssignedDeveloper()))
-                    .count();
-            Map<String, Object> entry = new HashMap<>();
-            entry.put("id", dev.getId());
-            entry.put("name", dev.getName());
-            entry.put("email", dev.getEmail());
-            entry.put("skills", "");
-            entry.put("activeTickets", count);
-            result.add(entry);
-        }
         result.sort((a, b) -> Long.compare((Long) a.get("activeTickets"), (Long) b.get("activeTickets")));
         return ResponseEntity.ok(result);
     }

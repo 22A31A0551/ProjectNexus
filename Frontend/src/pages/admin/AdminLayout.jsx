@@ -12,11 +12,19 @@ function AdminLayout() {
     const [selectedManager, setSelectedManager] = useState('');
     const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    useEffect(() => {
+        if (!user || user.role !== 'ADMIN') {
+            navigate('/admin/login');
+        }
+    }, [navigate]);
+
     useEffect(() => {
         setMobileSidebarOpen(false);
     }, [location.pathname]);
 
-    const user = JSON.parse(localStorage.getItem('user') || '{"name": "Admin"}');
+    if (!user || user.role !== 'ADMIN') return null;
 
     const [managers, setManagers] = useState([]);
 

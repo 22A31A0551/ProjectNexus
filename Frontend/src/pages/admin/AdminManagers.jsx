@@ -9,6 +9,14 @@ function AdminManagers() {
     const [selectedManagerForAssign, setSelectedManagerForAssign] = useState(null);
     const [selectedRequestToAssign, setSelectedRequestToAssign] = useState(null);
 
+    // Add manager state
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [addName, setAddName] = useState('');
+    const [addEmail, setAddEmail] = useState('');
+    const [addPassword, setAddPassword] = useState('');
+    const [addError, setAddError] = useState('');
+    const [addSubmitting, setAddSubmitting] = useState(false);
+
     const fetchPendingRequests = async () => {
         try {
             const res = await fetch('http://localhost:8080/api/admin/requests/pending');
@@ -44,6 +52,34 @@ function AdminManagers() {
         }
     };
 
+    const handleAddManagerSubmit = async (e) => {
+        e.preventDefault();
+        setAddSubmitting(true);
+        setAddError('');
+        try {
+            const res = await fetch('http://localhost:8080/api/admin/managers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: addName, email: addEmail, password: addPassword })
+            });
+
+            if (res.ok) {
+                setShowAddModal(false);
+                setAddName('');
+                setAddEmail('');
+                setAddPassword('');
+                fetchManagers();
+            } else {
+                const msg = await res.text();
+                setAddError(msg || 'Failed to add manager.');
+            }
+        } catch (err) {
+            setAddError('Error connecting to the server.');
+        } finally {
+            setAddSubmitting(false);
+        }
+    };
+
     return (
         <div className="admin-page">
             <div className="page-header">
@@ -51,7 +87,9 @@ function AdminManagers() {
                     <h2 style={{ color: '#1e1b4b' }}>Manager Assignment</h2>
                     <p style={{ color: '#475569' }}>View all project managers and their current workload.</p>
                 </div>
-                <button className="btn-primary">+ Add Manager</button>
+                <button className="btn-primary" onClick={() => setShowAddModal(true)}>
+                    + Add Manager
+                </button>
             </div>
 
             {/* Summary Cards */}
@@ -255,6 +293,81 @@ function AdminManagers() {
                                 Assign
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Manager Modal */}
+            {showAddModal && (
+                <div className="monochrome-modal-overlay" onClick={() => setShowAddModal(false)}>
+                    <div className="monochrome-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+                        <h3 style={{ margin: '0 0 16px 0', color: '#1e1b4b' }}>Add New Manager</h3>
+
+                        {addError && (
+                            <div style={{
+                                background: 'rgba(239,68,68,0.1)', color: '#dc2626',
+                                padding: '10px 12px', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '16px'
+                            }}>
+                                ⚠ {addError}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleAddManagerSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            <div className="modal-form-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>Manager Name</label>
+                                <input
+                                    type="text"
+                                    value={addName}
+                                    onChange={e => setAddName(e.target.value)}
+                                    placeholder="e.g. manager6"
+                                    required
+                                    style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                                />
+                            </div>
+
+                            <div className="modal-form-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>Email Address</label>
+                                <input
+                                    type="email"
+                                    value={addEmail}
+                                    onChange={e => setAddEmail(e.target.value)}
+                                    placeholder="e.g. manager6@gmail.com"
+                                    required
+                                    style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                                />
+                            </div>
+
+                            <div className="modal-form-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>Password</label>
+                                <input
+                                    type="password"
+                                    value={addPassword}
+                                    onChange={e => setAddPassword(e.target.value)}
+                                    placeholder="Create temporary password"
+                                    required
+                                    style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                                />
+                            </div>
+
+                            <div className="modal-actions" style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                <button
+                                    type="button"
+                                    className="modal-btn-cancel"
+                                    onClick={() => setShowAddModal(false)}
+                                    style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #cbd5e1', background: 'none', cursor: 'pointer' }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn-primary"
+                                    disabled={addSubmitting}
+                                    style={{ padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}
+                                >
+                                    {addSubmitting ? 'Saving...' : 'Add Manager'}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
