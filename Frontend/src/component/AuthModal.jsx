@@ -8,6 +8,7 @@ function AuthModal({ isOpen, onClose }) {
     const [isSuccess, setIsSuccess] = useState(false);
     const [successRole, setSuccessRole] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     // Form states
     const [loginEmail, setLoginEmail] = useState('');
@@ -73,6 +74,7 @@ function AuthModal({ isOpen, onClose }) {
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
 
         try {
             const response = await fetch(window.API_BASE_URL + '/api/auth/login', {
@@ -85,6 +87,7 @@ function AuthModal({ isOpen, onClose }) {
 
             if (!response.ok) {
                 setError(data.message || 'Invalid email or password.');
+                setIsLoading(false);
                 return;
             }
 
@@ -96,6 +99,7 @@ function AuthModal({ isOpen, onClose }) {
                 setKeyRole(role);
                 setShowKeyPrompt(true);
                 setEnteredKey('');
+                setIsLoading(false);
                 return;
             }
 
@@ -107,6 +111,7 @@ function AuthModal({ isOpen, onClose }) {
 
             setSuccessRole(role);
             setIsSuccess(true);
+            setIsLoading(false);
 
             setTimeout(() => {
                 setIsSuccess(false);
@@ -120,6 +125,7 @@ function AuthModal({ isOpen, onClose }) {
             }, 3000);
 
         } catch (err) {
+            setIsLoading(false);
             if (err instanceof SyntaxError) {
                 setError('Invalid email or password.');
             } else {
@@ -209,6 +215,8 @@ function AuthModal({ isOpen, onClose }) {
             return;
         }
 
+        setIsLoading(true);
+
         try {
             const response = await fetch(window.API_BASE_URL + '/api/auth/register', {
                 method: 'POST',
@@ -220,6 +228,7 @@ function AuthModal({ isOpen, onClose }) {
 
             if (!response.ok) {
                 setError(data.message || 'Registration failed. Please try again.');
+                setIsLoading(false);
                 return;
             }
 
@@ -236,6 +245,7 @@ function AuthModal({ isOpen, onClose }) {
 
             setSuccessRole('client');
             setIsSuccess(true);
+            setIsLoading(false);
 
             setTimeout(() => {
                 setIsSuccess(false);
@@ -245,6 +255,7 @@ function AuthModal({ isOpen, onClose }) {
             }, 3000);
 
         } catch (err) {
+            setIsLoading(false);
             if (err instanceof SyntaxError) {
                 setError('Registration failed. Please try again.');
             } else {
@@ -380,6 +391,7 @@ function AuthModal({ isOpen, onClose }) {
                                         onChange={(e) => setLoginEmail(e.target.value)}
                                         required
                                         autoComplete="email"
+                                        disabled={isLoading}
                                     />
                                 </div>
 
@@ -401,12 +413,14 @@ function AuthModal({ isOpen, onClose }) {
                                             onChange={(e) => setLoginPassword(e.target.value)}
                                             required
                                             autoComplete="current-password"
+                                            disabled={isLoading}
                                         />
                                         <button
                                             type="button"
                                             className="auth-toggle-pass"
                                             onClick={() => setShowLoginPass(!showLoginPass)}
                                             aria-label="Toggle password visibility"
+                                            disabled={isLoading}
                                         >
                                             {showLoginPass ? (
                                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -424,12 +438,21 @@ function AuthModal({ isOpen, onClose }) {
                                     </div>
                                 </div>
 
-                                <button type="submit" className="auth-submit-btn" id="login-submit-btn">
-                                    <span>Sign In</span>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
+                                <button type="submit" className="auth-submit-btn" id="login-submit-btn" disabled={isLoading}>
+                                    {isLoading ? (
+                                        <>
+                                            <span className="auth-spinner"></span>
+                                            <span>Signing In...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>Sign In</span>
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                <polyline points="12 5 19 12 12 19"></polyline>
+                                            </svg>
+                                        </>
+                                    )}
                                 </button>
                             </form>
                         ) : (
@@ -452,6 +475,7 @@ function AuthModal({ isOpen, onClose }) {
                                         onChange={(e) => setRegName(e.target.value)}
                                         required
                                         autoComplete="name"
+                                        disabled={isLoading}
                                     />
                                 </div>
 
@@ -472,13 +496,14 @@ function AuthModal({ isOpen, onClose }) {
                                         onChange={(e) => setRegEmail(e.target.value)}
                                         required
                                         autoComplete="email"
+                                        disabled={isLoading}
                                     />
                                 </div>
 
                                 <div className="auth-field">
                                     <label className="auth-label" htmlFor="reg-phone">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.5 19.5 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                                         </svg>
                                         Phone Number (Intl. Format)
                                     </label>
@@ -491,6 +516,7 @@ function AuthModal({ isOpen, onClose }) {
                                         onChange={(e) => setRegPhone(e.target.value)}
                                         required
                                         autoComplete="tel"
+                                        disabled={isLoading}
                                     />
                                 </div>
 
@@ -513,12 +539,14 @@ function AuthModal({ isOpen, onClose }) {
                                             required
                                             minLength={6}
                                             autoComplete="new-password"
+                                            disabled={isLoading}
                                         />
                                         <button
                                             type="button"
                                             className="auth-toggle-pass"
                                             onClick={() => setShowRegPass(!showRegPass)}
                                             aria-label="Toggle password visibility"
+                                            disabled={isLoading}
                                         >
                                             {showRegPass ? (
                                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -554,12 +582,14 @@ function AuthModal({ isOpen, onClose }) {
                                             required
                                             minLength={6}
                                             autoComplete="new-password"
+                                            disabled={isLoading}
                                         />
                                         <button
                                             type="button"
                                             className="auth-toggle-pass"
                                             onClick={() => setShowRegConfirmPass(!showRegConfirmPass)}
                                             aria-label="Toggle password visibility"
+                                            disabled={isLoading}
                                         >
                                             {showRegConfirmPass ? (
                                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -577,12 +607,21 @@ function AuthModal({ isOpen, onClose }) {
                                     </div>
                                 </div>
 
-                                <button type="submit" className="auth-submit-btn" id="register-submit-btn">
-                                    <span>Create Account</span>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
+                                <button type="submit" className="auth-submit-btn" id="register-submit-btn" disabled={isLoading}>
+                                    {isLoading ? (
+                                        <>
+                                            <span className="auth-spinner"></span>
+                                            <span>Creating Account...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>Create Account</span>
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                                <polyline points="12 5 19 12 12 19"></polyline>
+                                            </svg>
+                                        </>
+                                    )}
                                 </button>
                             </form>
                         )}
