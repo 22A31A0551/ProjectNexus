@@ -33,7 +33,7 @@ function AdminProjects() {
     const fetchProjects = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:8080/api/admin/projects');
+            const response = await fetch(window.API_BASE_URL + '/api/admin/projects');
             if (!response.ok) {
                 throw new Error('Failed to fetch projects');
             }
@@ -50,7 +50,7 @@ function AdminProjects() {
 
     const fetchManagers = async () => {
         try {
-            const res = await fetch('http://localhost:8080/api/admin/managers');
+            const res = await fetch(window.API_BASE_URL + '/api/admin/managers');
             if (res.ok) {
                 setManagers(await res.json());
             }
@@ -116,8 +116,8 @@ function AdminProjects() {
         };
 
         const url = isEditMode 
-            ? `http://localhost:8080/api/admin/projects/${selectedProjectId}` 
-            : 'http://localhost:8080/api/admin/projects';
+            ? `${window.API_BASE_URL}/api/admin/projects/${selectedProjectId}` 
+            : window.API_BASE_URL + '/api/admin/projects';
         
         const method = isEditMode ? 'PUT' : 'POST';
 
@@ -142,7 +142,7 @@ function AdminProjects() {
     const handleDeleteProject = async (id) => {
         if (!window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
         try {
-            const response = await fetch(`http://localhost:8080/api/admin/projects/${id}`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/admin/projects/${id}`, {
                 method: 'DELETE'
             });
             if (response.ok) {

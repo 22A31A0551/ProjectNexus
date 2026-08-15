@@ -77,8 +77,8 @@ function ClientSupportPending() {
         try {
             setLoading(true);
             const [projectsRes, requestsRes] = await Promise.all([
-                fetch(`http://localhost:8080/api/client/${clientUser.id}/projects`),
-                fetch(`http://localhost:8080/api/client/${clientUser.id}/requests`)
+                fetch(`${window.API_BASE_URL}/api/client/${clientUser.id}/projects`),
+                fetch(`${window.API_BASE_URL}/api/client/${clientUser.id}/requests`)
             ]);
             setProjects(await projectsRes.json());
             const allRequests = await requestsRes.json();
@@ -94,7 +94,7 @@ function ClientSupportPending() {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const res = await fetch('http://localhost:8080/api/client/requests', {
+            const res = await fetch(window.API_BASE_URL + '/api/client/requests', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

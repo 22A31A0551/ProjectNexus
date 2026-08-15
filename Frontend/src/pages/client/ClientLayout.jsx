@@ -28,7 +28,7 @@ function ClientLayout() {
     // Fetch accepted requests and compute unseen ones
     const fetchNotifications = useCallback(async () => {
         try {
-            const res = await fetch(`http://localhost:8080/api/client/${clientUser.id}/requests`);
+            const res = await fetch(`${window.API_BASE_URL}/api/client/${clientUser.id}/requests`);
             if (!res.ok) return;
             const data = await res.json();
             const accepted = data.filter(r => r.status === 'Accepted');

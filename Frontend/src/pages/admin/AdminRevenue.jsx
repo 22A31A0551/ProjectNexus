@@ -12,7 +12,7 @@ function AdminRevenue() {
     const fetchProjects = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:8080/api/admin/projects');
+            const response = await fetch(window.API_BASE_URL + '/api/admin/projects');
             if (response.ok) {
                 const data = await response.json();
                 const projectRecords = data.map((proj) => ({

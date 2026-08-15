@@ -32,7 +32,7 @@ function ManagerDeveloperAssignment() {
     const fetchDevelopers = async () => {
         try {
             setLoading(true);
-            const res = await fetch('http://localhost:8080/api/manager/developers/workload');
+            const res = await fetch(window.API_BASE_URL + '/api/manager/developers/workload');
             if (res.ok) {
                 setDevelopers(await res.json());
             }
@@ -46,7 +46,7 @@ function ManagerDeveloperAssignment() {
     const fetchMyActiveTickets = async () => {
         try {
             const res = await fetch(
-                `http://localhost:8080/api/manager/tickets/active?manager=${encodeURIComponent(managerName)}`
+                `${window.API_BASE_URL}/api/manager/tickets/active?manager=${encodeURIComponent(managerName)}`
             );
             if (res.ok) {
                 setMyActiveTickets(await res.json());
@@ -66,7 +66,7 @@ function ManagerDeveloperAssignment() {
         setActionLoading(true);
         try {
             const res = await fetch(
-                `http://localhost:8080/api/manager/tickets/${selectedTicketToAssign}/assign-developer`,
+                `${window.API_BASE_URL}/api/manager/tickets/${selectedTicketToAssign}/assign-developer`,
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },

@@ -19,7 +19,7 @@ function DeveloperActiveTickets() {
     const fetchTickets = useCallback(async () => {
         try {
             const res = await fetch(
-                `http://localhost:8080/api/developer/tickets/active?developer=${encodeURIComponent(devName)}`
+                `${window.API_BASE_URL}/api/developer/tickets/active?developer=${encodeURIComponent(devName)}`
             );
             if (res.ok) setTickets(await res.json());
         } catch (err) {
@@ -38,7 +38,7 @@ function DeveloperActiveTickets() {
         setActionLoading(true);
         try {
             const res = await fetch(
-                `http://localhost:8080/api/developer/tickets/${resolveConfirm.id}/resolve`,
+                `${window.API_BASE_URL}/api/developer/tickets/${resolveConfirm.id}/resolve`,
                 { method: 'PUT' }
             );
             if (res.ok) {

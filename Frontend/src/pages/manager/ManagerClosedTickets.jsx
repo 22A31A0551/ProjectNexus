@@ -13,7 +13,7 @@ function ManagerClosedTickets() {
         const fetchClosed = async () => {
             try {
                 const res = await fetch(
-                    `http://localhost:8080/api/manager/tickets/closed?manager=${encodeURIComponent(managerName)}`
+                    `${window.API_BASE_URL}/api/manager/tickets/closed?manager=${encodeURIComponent(managerName)}`
                 );
                 if (res.ok) setTickets(await res.json());
             } catch (err) {

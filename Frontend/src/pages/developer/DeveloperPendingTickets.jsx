@@ -18,7 +18,7 @@ function DeveloperPendingTickets() {
     const fetchTickets = useCallback(async () => {
         try {
             const res = await fetch(
-                `http://localhost:8080/api/developer/tickets/pending?developer=${encodeURIComponent(devName)}`
+                `${window.API_BASE_URL}/api/developer/tickets/pending?developer=${encodeURIComponent(devName)}`
             );
             if (res.ok) setTickets(await res.json());
         } catch (err) {
@@ -36,7 +36,7 @@ function DeveloperPendingTickets() {
         setActionLoading(true);
         try {
             const res = await fetch(
-                `http://localhost:8080/api/developer/tickets/${ticketId}/accept`,
+                `${window.API_BASE_URL}/api/developer/tickets/${ticketId}/accept`,
                 { method: 'PUT' }
             );
             if (res.ok) {

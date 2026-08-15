@@ -16,7 +16,7 @@ function AdminDashboardOverview() {
 
     const fetchDashboardData = () => {
         setLoading(true);
-        fetch('http://localhost:8080/api/admin/dashboard/overview')
+        fetch(window.API_BASE_URL + '/api/admin/dashboard/overview')
             .then(res => {
                 if (!res.ok) throw new Error("Failed to fetch dashboard data");
                 return res.json();

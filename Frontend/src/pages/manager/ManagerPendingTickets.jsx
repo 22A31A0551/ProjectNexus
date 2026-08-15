@@ -17,7 +17,7 @@ function ManagerPendingTickets() {
     useEffect(() => {
         const fetchPending = async () => {
             try {
-                const res = await fetch('http://localhost:8080/api/manager/tickets/pending');
+                const res = await fetch(window.API_BASE_URL + '/api/manager/tickets/pending');
                 if (res.ok) setTickets(await res.json());
             } catch (err) {
                 console.error('Error fetching pending tickets:', err);

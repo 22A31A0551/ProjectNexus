@@ -75,7 +75,7 @@ function AuthModal({ isOpen, onClose }) {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:8080/api/auth/login', {
+            const response = await fetch(window.API_BASE_URL + '/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: loginEmail, password: loginPassword }),
@@ -210,7 +210,7 @@ function AuthModal({ isOpen, onClose }) {
         }
 
         try {
-            const response = await fetch('http://localhost:8080/api/auth/register', {
+            const response = await fetch(window.API_BASE_URL + '/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: regName, email: regEmail, phoneNumber: regPhone, password: regPassword }),
@@ -224,7 +224,7 @@ function AuthModal({ isOpen, onClose }) {
             }
 
             // Auto-login after registration
-            const loginRes = await fetch('http://localhost:8080/api/auth/login', {
+            const loginRes = await fetch(window.API_BASE_URL + '/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: regEmail, password: regPassword }),

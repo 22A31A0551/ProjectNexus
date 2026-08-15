@@ -11,7 +11,7 @@ function DeveloperClosedTickets() {
     const fetchTickets = useCallback(async () => {
         try {
             const res = await fetch(
-                `http://localhost:8080/api/developer/tickets/closed?developer=${encodeURIComponent(devName)}`
+                `${window.API_BASE_URL}/api/developer/tickets/closed?developer=${encodeURIComponent(devName)}`
             );
             if (res.ok) setTickets(await res.json());
         } catch (err) {
