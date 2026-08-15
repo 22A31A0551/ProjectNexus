@@ -17,7 +17,7 @@ function DeveloperOverview() {
         const fetchData = async () => {
             try {
                 const res = await fetch(
-                    `http://localhost:8080/api/developer/overview?developer=${encodeURIComponent(devName)}`
+                    `${window.API_BASE_URL}/api/developer/overview?developer=${encodeURIComponent(devName)}`
                 );
                 if (res.ok) {
                     setData(await res.json());

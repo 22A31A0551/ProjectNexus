@@ -12,14 +12,14 @@ function AdminRequestsNew() {
 
     const fetchManagers = async () => {
         try {
-            const res = await fetch('http://localhost:8080/api/admin/managers/workload');
+            const res = await fetch(window.API_BASE_URL + '/api/admin/managers/workload');
             if (res.ok) {
                 const data = await res.json();
                 console.log('Managers workload loaded:', data);
                 setManagers(data);
             } else {
                 // Fallback to basic managers list
-                const fallback = await fetch('http://localhost:8080/api/admin/managers');
+                const fallback = await fetch(window.API_BASE_URL + '/api/admin/managers');
                 if (fallback.ok) {
                     const fbData = await fallback.json();
                     // Wrap in workload shape
@@ -34,7 +34,7 @@ function AdminRequestsNew() {
     const fetchRequests = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:8080/api/admin/requests/pending');
+            const response = await fetch(window.API_BASE_URL + '/api/admin/requests/pending');
             if (!response.ok) throw new Error('Failed to fetch requests');
             const data = await response.json();
             setRequests(data);
@@ -60,7 +60,7 @@ function AdminRequestsNew() {
         }
         
         try {
-            const response = await fetch(`http://localhost:8080/api/admin/requests/${requestId}/status`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/admin/requests/${requestId}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status })
@@ -82,7 +82,7 @@ function AdminRequestsNew() {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/admin/requests/${selectedRequest.id}/status`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/admin/requests/${selectedRequest.id}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 

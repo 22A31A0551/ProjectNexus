@@ -21,7 +21,7 @@ function AdminDevelopers() {
     const fetchDevelopers = async () => {
         try {
             setLoading(true);
-            const res = await fetch('http://localhost:8080/api/admin/developers');
+            const res = await fetch(window.API_BASE_URL + '/api/admin/developers');
             if (res.ok) {
                 setDevelopers(await res.json());
             }
@@ -37,7 +37,7 @@ function AdminDevelopers() {
         setSubmitting(true);
         setError('');
         try {
-            const res = await fetch('http://localhost:8080/api/admin/developers', {
+            const res = await fetch(window.API_BASE_URL + '/api/admin/developers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password, skills })

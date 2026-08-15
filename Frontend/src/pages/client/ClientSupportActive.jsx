@@ -59,7 +59,7 @@ function ClientSupportActive() {
 
     useEffect(() => {
         if (clientUser) {
-            fetch(`http://localhost:8080/api/client/${clientUser.id}/requests`)
+            fetch(`${window.API_BASE_URL}/api/client/${clientUser.id}/requests`)
                 .then(res => res.json())
                 .then(data => {
                     setRequests(data.filter(r => r.status === 'Accepted'));

@@ -80,7 +80,7 @@ function ManagerLayout() {
         const fetchCounts = async () => {
             try {
                 const res = await fetch(
-                    `http://localhost:8080/api/manager/overview?manager=${encodeURIComponent(managerName)}`
+                    `${window.API_BASE_URL}/api/manager/overview?manager=${encodeURIComponent(managerName)}`
                 );
                 if (res.ok) {
                     const data = await res.json();

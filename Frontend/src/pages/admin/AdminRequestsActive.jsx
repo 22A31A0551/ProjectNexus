@@ -9,7 +9,7 @@ function AdminRequestsActive() {
     const fetchActiveRequests = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:8080/api/admin/requests/active');
+            const response = await fetch(window.API_BASE_URL + '/api/admin/requests/active');
             if (!response.ok) throw new Error('Failed');
             const data = await response.json();
             setRequests(data);

@@ -30,7 +30,7 @@ function AdminClients() {
     const fetchClients = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:8080/api/admin/clients');
+            const response = await fetch(window.API_BASE_URL + '/api/admin/clients');
             if (!response.ok) throw new Error('Failed to fetch clients');
             setClients(await response.json());
             setError(null);
@@ -48,7 +48,7 @@ function AdminClients() {
         setClientDetails(null);
         setDetailLoading(true);
         try {
-            const res = await fetch(`http://localhost:8080/api/admin/clients/${client.id}/details`);
+            const res = await fetch(`${window.API_BASE_URL}/api/admin/clients/${client.id}/details`);
             if (res.ok) setClientDetails(await res.json());
         } catch (err) {
             console.error('Failed to fetch client details:', err);

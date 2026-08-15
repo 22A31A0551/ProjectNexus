@@ -11,7 +11,7 @@ function AdminHistory() {
 
     const fetchHistory = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/admin/requests/history');
+            const response = await fetch(window.API_BASE_URL + '/api/admin/requests/history');
             if (response.ok) {
                 const data = await response.json();
                 setRequests(data);

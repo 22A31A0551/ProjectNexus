@@ -19,7 +19,7 @@ function AdminManagers() {
 
     const fetchPendingRequests = async () => {
         try {
-            const res = await fetch('http://localhost:8080/api/admin/requests/pending');
+            const res = await fetch(window.API_BASE_URL + '/api/admin/requests/pending');
             if (res.ok) {
                 setPendingRequests(await res.json());
             }
@@ -35,11 +35,11 @@ function AdminManagers() {
     const fetchManagers = async () => {
         try {
             setLoading(true);
-            const res = await fetch('http://localhost:8080/api/admin/managers/workload');
+            const res = await fetch(window.API_BASE_URL + '/api/admin/managers/workload');
             if (res.ok) {
                 setManagers(await res.json());
             } else {
-                const fallback = await fetch('http://localhost:8080/api/admin/managers');
+                const fallback = await fetch(window.API_BASE_URL + '/api/admin/managers');
                 if (fallback.ok) {
                     const fbData = await fallback.json();
                     setManagers(fbData.map(m => ({ ...m, activeRequests: 0 })));
@@ -57,7 +57,7 @@ function AdminManagers() {
         setAddSubmitting(true);
         setAddError('');
         try {
-            const res = await fetch('http://localhost:8080/api/admin/managers', {
+            const res = await fetch(window.API_BASE_URL + '/api/admin/managers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: addName, email: addEmail, password: addPassword })
@@ -271,7 +271,7 @@ function AdminManagers() {
                                 onClick={async () => {
                                     if (!selectedRequestToAssign) return;
                                     try {
-                                        const res = await fetch(`http://localhost:8080/api/admin/requests/${selectedRequestToAssign}/status`, {
+                                        const res = await fetch(`${window.API_BASE_URL}/api/admin/requests/${selectedRequestToAssign}/status`, {
                                             method: 'PUT',
                                             headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify({ 

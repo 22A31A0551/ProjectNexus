@@ -30,7 +30,7 @@ function AdminLayout() {
 
     const fetchManagers = async () => {
         try {
-            const res = await fetch('http://localhost:8080/api/admin/managers');
+            const res = await fetch(window.API_BASE_URL + '/api/admin/managers');
             if (res.ok) {
                 setManagers(await res.json());
             }
@@ -41,7 +41,7 @@ function AdminLayout() {
 
     const fetchPendingRequests = async () => {
         try {
-            const res = await fetch('http://localhost:8080/api/admin/requests/pending');
+            const res = await fetch(window.API_BASE_URL + '/api/admin/requests/pending');
             if (res.ok) {
                 const data = await res.json();
                 setPendingRequests(data);
@@ -70,7 +70,7 @@ function AdminLayout() {
             return;
         }
         try {
-            const response = await fetch(`http://localhost:8080/api/admin/requests/${requestId}/status`, {
+            const response = await fetch(`${window.API_BASE_URL}/api/admin/requests/${requestId}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 

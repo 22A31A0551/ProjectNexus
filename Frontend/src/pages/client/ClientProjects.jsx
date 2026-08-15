@@ -8,7 +8,7 @@ function ClientProjects() {
 
     useEffect(() => {
         if (clientUser) {
-            fetch(`http://localhost:8080/api/client/${clientUser.id}/projects`)
+            fetch(`${window.API_BASE_URL}/api/client/${clientUser.id}/projects`)
                 .then(res => res.json())
                 .then(data => {
                     setProjects(data);

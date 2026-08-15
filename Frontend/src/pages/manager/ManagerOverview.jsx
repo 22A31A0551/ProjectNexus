@@ -26,7 +26,7 @@ function ManagerOverview() {
         const fetchData = async () => {
             try {
                 const res = await fetch(
-                    `http://localhost:8080/api/manager/overview?manager=${encodeURIComponent(managerName)}`
+                    `${window.API_BASE_URL}/api/manager/overview?manager=${encodeURIComponent(managerName)}`
                 );
                 if (res.ok) {
                     setData(await res.json());
