@@ -2113,12 +2113,35 @@ section p {
     background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
 }
 
+.auth-submit-btn:disabled {
+    background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.85;
+}
+
 .auth-submit-btn svg {
     transition: transform 0.3s ease;
 }
 
-.auth-submit-btn:hover svg {
+.auth-submit-btn:hover:not(:disabled) svg {
     transform: translateX(3px);
+}
+
+.auth-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: auth-spin 1s ease-in-out infinite;
+}
+
+@keyframes auth-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .auth-divider {
