@@ -29,6 +29,9 @@ public class AdminController {
     @Autowired
     private backend.repository.UserRepository userRepository;
 
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     // --- Dashboard Overview Endpoint ---
     @GetMapping("/dashboard/overview")
     public ResponseEntity<Map<String, Object>> getDashboardOverview() {
@@ -108,46 +111,100 @@ public class AdminController {
     // --- Managers Endpoint ---
     @GetMapping("/managers")
     public ResponseEntity<List<Map<String, Object>>> getManagers() {
-        List<Map<String, Object>> virtualManagers = new java.util.ArrayList<>();
-        String[] managerNames = {"manager1", "manager2", "manager3", "manager4", "manager5"};
-        long idCounter = 1000;
-        for (String name : managerNames) {
+        List<backend.model.User> managers = userRepository.findByRole("MANAGER");
+        List<Map<String, Object>> result = new java.util.ArrayList<>();
+        for (backend.model.User mgr : managers) {
             Map<String, Object> map = new HashMap<>();
-            map.put("id", idCounter++);
-            map.put("name", name);
-            map.put("email", "manager@gmail.com"); // Shared login
-            map.put("role", "MANAGER");
-            virtualManagers.add(map);
+            map.put("id", mgr.getId());
+            map.put("name", mgr.getName());
+            map.put("email", mgr.getEmail());
+            map.put("role", mgr.getRole());
+            result.add(map);
         }
-        return ResponseEntity.ok(virtualManagers);
+        return ResponseEntity.ok(result);
     }
 
     // --- Manager Workload Endpoint ---
     @GetMapping("/managers/workload")
     public ResponseEntity<List<Map<String, Object>>> getManagerWorkload() {
         List<backend.model.SupportRequest> activeReqs = supportRequestRepository.findByStatus("Accepted");
-
+        List<backend.model.User> managers = userRepository.findByRole("MANAGER");
         List<Map<String, Object>> result = new java.util.ArrayList<>();
-        String[] managerNames = {"manager1", "manager2", "manager3", "manager4", "manager5"};
-        long idCounter = 1000;
         
-        for (String managerName : managerNames) {
+        for (backend.model.User mgr : managers) {
             long count = 0;
             for (backend.model.SupportRequest req : activeReqs) {
-                if (managerName.equalsIgnoreCase(req.getAssignedManager())) {
+                if (mgr.getName() != null && mgr.getName().equalsIgnoreCase(req.getAssignedManager())) {
                     count++;
                 }
             }
             Map<String, Object> entry = new HashMap<>();
-            entry.put("id", idCounter++);
-            entry.put("name", managerName);
-            entry.put("email", "manager@gmail.com");
+            entry.put("id", mgr.getId());
+            entry.put("name", mgr.getName());
+            entry.put("email", mgr.getEmail());
             entry.put("activeRequests", count);
             result.add(entry);
         }
         // Sort ascending by workload (least loaded first)
         result.sort((a, b) -> Long.compare((Long) a.get("activeRequests"), (Long) b.get("activeRequests")));
         return ResponseEntity.ok(result);
+    }
+
+    // --- Developers Endpoints ---
+    @GetMapping("/developers")
+    public ResponseEntity<List<backend.model.User>> getDevelopers() {
+        return ResponseEntity.ok(userRepository.findByRole("DEVELOPER"));
+    }
+
+    @PostMapping("/developers")
+    public ResponseEntity<?> createDeveloper(@RequestBody Map<String, String> payload) {
+        String name = payload.get("name");
+        String email = payload.get("email");
+        String password = payload.get("password");
+        String skills = payload.get("skills");
+
+        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Email and password are required.");
+        }
+
+        if (userRepository.findByEmail(email).isPresent()) {
+            return ResponseEntity.badRequest().body("User with this email already exists.");
+        }
+
+        backend.model.User devUser = backend.model.User.builder()
+                .name(name)
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .role("DEVELOPER")
+                .skills(skills)
+                .build();
+
+        return ResponseEntity.ok(userRepository.save(devUser));
+    }
+
+    // --- Create Manager Endpoint ---
+    @PostMapping("/managers")
+    public ResponseEntity<?> createManager(@RequestBody Map<String, String> payload) {
+        String name = payload.get("name");
+        String email = payload.get("email");
+        String password = payload.get("password");
+
+        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Email and password are required.");
+        }
+
+        if (userRepository.findByEmail(email).isPresent()) {
+            return ResponseEntity.badRequest().body("User with this email already exists.");
+        }
+
+        backend.model.User mgrUser = backend.model.User.builder()
+                .name(name)
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .role("MANAGER")
+                .build();
+
+        return ResponseEntity.ok(userRepository.save(mgrUser));
     }
 
     // --- Client Detail Endpoint (for admin view) ---

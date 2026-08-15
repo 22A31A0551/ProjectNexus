@@ -1,11 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Admin.css';
 
-const MOCK_REVENUE = [];
-
 function AdminRevenue() {
-    const [records] = useState(MOCK_REVENUE);
+    const [records, setRecords] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchProjects();
+    }, []);
+
+    const fetchProjects = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch('http://localhost:8080/api/admin/projects');
+            if (response.ok) {
+                const data = await response.json();
+                const projectRecords = data.map((proj) => ({
+                    id: proj.id,
+                    source: proj.projectName,
+                    client: proj.client?.name || 'Client',
+                    type: proj.status === 'Maintenance' ? 'Maintenance' : 'Project Delivery',
+                    date: proj.deliveryDate || new Date().toISOString().split('T')[0],
+                    amount: proj.price || 0
+                }));
+                setRecords(projectRecords);
+            }
+        } catch (err) {
+            console.error('Failed to fetch projects for revenue:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const formatAmount = (amt) => new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(amt);
+    
     const total = records.reduce((sum, r) => sum + r.amount, 0);
     const deliveries = records.filter(r => r.type === 'Project Delivery').reduce((sum, r) => sum + r.amount, 0);
     const maintenance = records.filter(r => r.type === 'Maintenance').reduce((sum, r) => sum + r.amount, 0);
@@ -71,16 +99,20 @@ function AdminRevenue() {
                     <table className="data-table">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Source</th>
+                                <th>Project ID</th>
+                                <th>Source Project</th>
                                 <th>Client</th>
                                 <th>Type</th>
-                                <th>Date</th>
+                                <th>Delivery Date</th>
                                 <th>Amount</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {records.length === 0 ? (
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '32px', color: '#475569' }}>Loading revenue records...</td>
+                                </tr>
+                            ) : records.length === 0 ? (
                                 <tr>
                                     <td colSpan="6" style={{ textAlign: 'center', padding: '32px', color: '#475569' }}>No revenue records available.</td>
                                 </tr>
@@ -98,7 +130,7 @@ function AdminRevenue() {
                                                 </span>
                                             </td>
                                             <td style={{ color: '#475569' }}>{new Date(r.date).toLocaleDateString()}</td>
-                                            <td style={{ fontWeight: 700, color: '#10b981' }}>{formatAmount(r.amount)}</td>
+                                            <td style={{ fontWeight: 600, color: '#1e1b4b' }}>{formatAmount(r.amount)}</td>
                                         </tr>
                                     );
                                 })
