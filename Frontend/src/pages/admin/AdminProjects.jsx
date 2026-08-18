@@ -29,6 +29,7 @@ function AdminProjects() {
     const [price, setPrice] = useState('');
     const [assignedManager, setAssignedManager] = useState('');
     const [managers, setManagers] = useState([]);
+    const [clients, setClients] = useState([]);
 
     const fetchProjects = async () => {
         try {
@@ -59,9 +60,21 @@ function AdminProjects() {
         }
     };
 
+    const fetchClients = async () => {
+        try {
+            const res = await fetch(window.API_BASE_URL + '/api/admin/clients');
+            if (res.ok) {
+                setClients(await res.json());
+            }
+        } catch (err) {
+            console.error('Failed to fetch clients:', err);
+        }
+    };
+
     useEffect(() => {
         fetchProjects();
         fetchManagers();
+        fetchClients();
     }, []);
 
     const resetForm = () => {
@@ -112,7 +125,8 @@ function AdminProjects() {
             githubUrl,
             price: price ? parseFloat(price) : null,
             clientName,
-            clientEmail
+            clientEmail,
+            assignedManager
         };
 
         const url = isEditMode 
@@ -331,6 +345,40 @@ function AdminProjects() {
                                     required
                                 />
                             </div>
+                            {!isEditMode && (
+                                <div className="modal-form-group">
+                                    <label>Select Existing Client (Optional)</label>
+                                    <select
+                                        value={clientEmail}
+                                        onChange={e => {
+                                            const email = e.target.value;
+                                            setClientEmail(email);
+                                            const found = clients.find(c => c.email === email);
+                                            if (found) {
+                                                setClientName(found.name);
+                                            } else if (email === '') {
+                                                setClientName('');
+                                            }
+                                        }}
+                                        style={{
+                                            padding: '10px',
+                                            borderRadius: '8px',
+                                            border: '1px solid rgba(109,40,217,0.2)',
+                                            background: '#f8f7ff',
+                                            color: '#1e1b4b',
+                                            width: '100%',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    >
+                                        <option value="">-- Create New Client / Custom Input --</option>
+                                        {clients.map(c => (
+                                            <option key={c.id} value={c.email}>
+                                                {c.name} ({c.email})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                 <div className="modal-form-group">
                                     <label>Client Name</label>
@@ -340,6 +388,7 @@ function AdminProjects() {
                                         onChange={e => setClientName(e.target.value)}
                                         placeholder="e.g. John Doe"
                                         required
+                                        disabled={isEditMode || (clientEmail && clients.some(c => c.email === clientEmail))}
                                     />
                                 </div>
                                 <div className="modal-form-group">
@@ -350,20 +399,46 @@ function AdminProjects() {
                                         onChange={e => setClientEmail(e.target.value)}
                                         placeholder="e.g. client@company.com"
                                         required={!isEditMode}
-                                        disabled={isEditMode}
+                                        disabled={isEditMode || (clientEmail && clients.some(c => c.email === clientEmail))}
                                         title={isEditMode ? "Cannot change client email after creation" : ""}
                                     />
                                 </div>
                             </div>
                             
-                            <div className="modal-form-group">
-                                <label>Technology Stack</label>
-                                <input
-                                    type="text"
-                                    value={technologyStack}
-                                    onChange={e => setTechnologyStack(e.target.value)}
-                                    placeholder="e.g. React, Spring Boot, MySQL"
-                                />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div className="modal-form-group">
+                                    <label>Technology Stack</label>
+                                    <input
+                                        type="text"
+                                        value={technologyStack}
+                                        onChange={e => setTechnologyStack(e.target.value)}
+                                        placeholder="e.g. React, Spring Boot, MySQL"
+                                    />
+                                </div>
+                                <div className="modal-form-group">
+                                    <label>Assigned Manager</label>
+                                    <select
+                                        value={assignedManager}
+                                        onChange={e => setAssignedManager(e.target.value)}
+                                        style={{
+                                            padding: '10px',
+                                            borderRadius: '8px',
+                                            border: '1px solid rgba(109,40,217,0.2)',
+                                            background: '#f8f7ff',
+                                            color: '#1e1b4b',
+                                            width: '100%',
+                                            boxSizing: 'border-box',
+                                            height: '42px'
+                                        }}
+                                    >
+                                        <option value="">-- No Manager Assigned --</option>
+                                        {managers.map(mgr => (
+                                            <option key={mgr.id} value={mgr.name}>
+                                                {mgr.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                 <div className="modal-form-group">
@@ -473,6 +548,9 @@ function AdminProjects() {
                                 </div>
                                 <div>
                                     <strong>Cost:</strong> <span style={{ color: '#475569' }}>{projectDetails.price ? `$${projectDetails.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : 'N/A'}</span>
+                                </div>
+                                <div>
+                                    <strong>Assigned Manager:</strong> <span style={{ color: '#475569' }}>{projectDetails.assignedManager || 'None'}</span>
                                 </div>
                             </div>
 
