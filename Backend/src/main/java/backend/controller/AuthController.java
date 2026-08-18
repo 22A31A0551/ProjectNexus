@@ -81,8 +81,18 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Invalid email or password!"));
         }
 
+        Long responseId = user.getId();
+        if ("CLIENT".equalsIgnoreCase(user.getRole())) {
+            Optional<backend.model.Client> clientOpt = clientRepository.findAll().stream()
+                    .filter(c -> c.getEmail().equalsIgnoreCase(user.getEmail()))
+                    .findFirst();
+            if (clientOpt.isPresent()) {
+                responseId = clientOpt.get().getId();
+            }
+        }
+
         return ResponseEntity.ok(new AuthResponse(
-                user.getId(),
+                responseId,
                 user.getName(),
                 user.getEmail(),
                 user.getRole()
