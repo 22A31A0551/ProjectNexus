@@ -15,7 +15,9 @@ function AdminDashboardOverview() {
     const [error, setError] = useState(null);
 
     const fetchDashboardData = () => {
-        setLoading(true);
+        if (!overviewData.recentProjects || overviewData.recentProjects.length === 0) {
+            setLoading(true);
+        }
         fetch(window.API_BASE_URL + '/api/admin/dashboard/overview')
             .then(res => {
                 if (!res.ok) throw new Error("Failed to fetch dashboard data");

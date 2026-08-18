@@ -13,7 +13,9 @@ function ClientDashboard() {
 
     const fetchDashboardData = async () => {
         try {
-            setLoading(true);
+            if (projects.length === 0 && requests.length === 0) {
+                setLoading(true);
+            }
             const [projectsRes, requestsRes] = await Promise.all([
                 fetch(`${window.API_BASE_URL}/api/client/${clientUser.id}/projects`),
                 fetch(`${window.API_BASE_URL}/api/client/${clientUser.id}/requests`)

@@ -20,7 +20,9 @@ function AdminDevelopers() {
 
     const fetchDevelopers = async () => {
         try {
-            setLoading(true);
+            if (developers.length === 0) {
+                setLoading(true);
+            }
             const res = await fetch(window.API_BASE_URL + '/api/admin/developers');
             if (res.ok) {
                 setDevelopers(await res.json());

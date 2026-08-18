@@ -34,7 +34,9 @@ function AdminManagers() {
 
     const fetchManagers = async () => {
         try {
-            setLoading(true);
+            if (managers.length === 0) {
+                setLoading(true);
+            }
             const res = await fetch(window.API_BASE_URL + '/api/admin/managers/workload');
             if (res.ok) {
                 setManagers(await res.json());

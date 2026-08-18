@@ -256,10 +256,7 @@ public class AdminController {
             }
 
             // Find or create Client by email
-            Client client = clientRepository.findAll().stream()
-                    .filter(c -> c.getEmail().equalsIgnoreCase(clientEmail))
-                    .findFirst()
-                    .orElse(null);
+            Client client = clientRepository.findByEmailIgnoreCase(clientEmail).orElse(null);
 
             if (client == null) {
                 client = new Client();
@@ -312,10 +309,7 @@ public class AdminController {
             if (payload.containsKey("clientEmail")) {
                 String clientEmail = (String) payload.get("clientEmail");
                 if (clientEmail != null && !clientEmail.trim().isEmpty()) {
-                    Client client = clientRepository.findAll().stream()
-                            .filter(c -> c.getEmail().equalsIgnoreCase(clientEmail))
-                            .findFirst()
-                            .orElse(null);
+                    Client client = clientRepository.findByEmailIgnoreCase(clientEmail).orElse(null);
                     
                     if (client == null) {
                         client = new Client();

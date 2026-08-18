@@ -29,7 +29,9 @@ function AdminClients() {
 
     const fetchClients = async () => {
         try {
-            setLoading(true);
+            if (clients.length === 0) {
+                setLoading(true);
+            }
             const response = await fetch(window.API_BASE_URL + '/api/admin/clients');
             if (!response.ok) throw new Error('Failed to fetch clients');
             setClients(await response.json());
