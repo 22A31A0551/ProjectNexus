@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import '../admin/Admin.css';
-import Footer from '../../component/Footer';
 
 const STORAGE_KEY = 'clientSeenNotifications';
 
@@ -384,7 +383,6 @@ function ClientLayout() {
                 {/* Main Content */}
                 <main className="admin-main-viewport">
                     <Outlet />
-                    <Footer />
                 </main>
             </div>
 
