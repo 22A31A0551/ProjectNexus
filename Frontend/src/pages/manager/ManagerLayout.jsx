@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import './Manager.css';
-import Footer from '../../component/Footer';
 
 const NAV_ITEMS = [
     {
@@ -175,7 +174,6 @@ function ManagerLayout() {
                 {/* Main content */}
                 <main className="mgr-main">
                     <Outlet />
-                    <Footer />
                 </main>
             </div>
         </div>
