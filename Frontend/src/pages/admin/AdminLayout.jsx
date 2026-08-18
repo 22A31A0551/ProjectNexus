@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import './Admin.css';
+import Footer from '../../component/Footer';
 
 function AdminLayout() {
     const location = useLocation();
@@ -222,6 +223,7 @@ function AdminLayout() {
                 {/* Main Content Area */}
                 <main className="admin-main-viewport">
                     <Outlet />
+                    <Footer />
                 </main>
             </div>
 
