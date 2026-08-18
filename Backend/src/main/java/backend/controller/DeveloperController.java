@@ -23,26 +23,20 @@ public class DeveloperController {
         Map<String, Object> response = new HashMap<>();
         String normalizedDev = developer.trim();
 
-        List<SupportRequest> allTickets = supportRequestRepository.findAll();
+        List<SupportRequest> allTickets = supportRequestRepository.findByAssignedDeveloper(normalizedDev);
 
         List<SupportRequest> active = allTickets.stream()
                 .filter(t -> "Accepted".equalsIgnoreCase(t.getStatus()) &&
-                        Boolean.TRUE.equals(t.getDeveloperAccepted()) &&
-                        t.getAssignedDeveloper() != null &&
-                        t.getAssignedDeveloper().trim().equalsIgnoreCase(normalizedDev))
+                        Boolean.TRUE.equals(t.getDeveloperAccepted()))
                 .collect(Collectors.toList());
 
         List<SupportRequest> pending = allTickets.stream()
                 .filter(t -> "Accepted".equalsIgnoreCase(t.getStatus()) &&
-                        !Boolean.TRUE.equals(t.getDeveloperAccepted()) &&
-                        t.getAssignedDeveloper() != null &&
-                        t.getAssignedDeveloper().trim().equalsIgnoreCase(normalizedDev))
+                        !Boolean.TRUE.equals(t.getDeveloperAccepted()))
                 .collect(Collectors.toList());
 
         List<SupportRequest> closed = allTickets.stream()
-                .filter(t -> "Closed".equalsIgnoreCase(t.getStatus()) &&
-                        t.getAssignedDeveloper() != null &&
-                        t.getAssignedDeveloper().trim().equalsIgnoreCase(normalizedDev))
+                .filter(t -> "Closed".equalsIgnoreCase(t.getStatus()))
                 .collect(Collectors.toList());
 
         response.put("activeCount", active.size());
@@ -57,11 +51,9 @@ public class DeveloperController {
     @GetMapping("/tickets/active")
     public ResponseEntity<List<SupportRequest>> getActiveTickets(@RequestParam String developer) {
         String normalizedDev = developer.trim();
-        List<SupportRequest> active = supportRequestRepository.findAll().stream()
+        List<SupportRequest> active = supportRequestRepository.findByAssignedDeveloper(normalizedDev).stream()
                 .filter(t -> "Accepted".equalsIgnoreCase(t.getStatus()) &&
-                        Boolean.TRUE.equals(t.getDeveloperAccepted()) &&
-                        t.getAssignedDeveloper() != null &&
-                        t.getAssignedDeveloper().trim().equalsIgnoreCase(normalizedDev))
+                        Boolean.TRUE.equals(t.getDeveloperAccepted()))
                 .sorted((a, b) -> {
                     if (a.getSubmittedAt() == null) return 1;
                     if (b.getSubmittedAt() == null) return -1;
@@ -75,11 +67,9 @@ public class DeveloperController {
     @GetMapping("/tickets/pending")
     public ResponseEntity<List<SupportRequest>> getPendingTickets(@RequestParam String developer) {
         String normalizedDev = developer.trim();
-        List<SupportRequest> pending = supportRequestRepository.findAll().stream()
+        List<SupportRequest> pending = supportRequestRepository.findByAssignedDeveloper(normalizedDev).stream()
                 .filter(t -> "Accepted".equalsIgnoreCase(t.getStatus()) &&
-                        !Boolean.TRUE.equals(t.getDeveloperAccepted()) &&
-                        t.getAssignedDeveloper() != null &&
-                        t.getAssignedDeveloper().trim().equalsIgnoreCase(normalizedDev))
+                        !Boolean.TRUE.equals(t.getDeveloperAccepted()))
                 .sorted((a, b) -> {
                     if (a.getSubmittedAt() == null) return 1;
                     if (b.getSubmittedAt() == null) return -1;
@@ -93,10 +83,8 @@ public class DeveloperController {
     @GetMapping("/tickets/closed")
     public ResponseEntity<List<SupportRequest>> getClosedTickets(@RequestParam String developer) {
         String normalizedDev = developer.trim();
-        List<SupportRequest> closed = supportRequestRepository.findAll().stream()
-                .filter(t -> "Closed".equalsIgnoreCase(t.getStatus()) &&
-                        t.getAssignedDeveloper() != null &&
-                        t.getAssignedDeveloper().trim().equalsIgnoreCase(normalizedDev))
+        List<SupportRequest> closed = supportRequestRepository.findByAssignedDeveloper(normalizedDev).stream()
+                .filter(t -> "Closed".equalsIgnoreCase(t.getStatus()))
                 .sorted((a, b) -> {
                     if (a.getSubmittedAt() == null) return 1;
                     if (b.getSubmittedAt() == null) return -1;

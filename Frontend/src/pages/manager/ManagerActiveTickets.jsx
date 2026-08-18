@@ -255,7 +255,7 @@ function ManagerActiveTickets() {
                                                     className="mgr-btn danger"
                                                     onClick={() => setCloseConfirm(ticket)}
                                                 >
-                                                    Close
+                                                    Close Ticket
                                                 </button>
                                             </div>
                                         </td>

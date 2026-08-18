@@ -37,10 +37,7 @@ public class ClientPortalController {
 
         // Mock authentication for demonstration - just checking if client exists
         // In a real app, we would verify a password/hash and generate a JWT.
-        Client client = clientRepository.findAll().stream()
-                .filter(c -> c.getEmail().equalsIgnoreCase(email))
-                .findFirst()
-                .orElse(null);
+        Client client = clientRepository.findByEmailIgnoreCase(email).orElse(null);
 
         if (client != null) {
             return ResponseEntity.ok(client);

@@ -163,7 +163,7 @@ function DeveloperActiveTickets() {
                                                 style={{ padding: '5px 12px', fontSize: '0.75rem' }}
                                                 onClick={() => setResolveConfirm(ticket)}
                                             >
-                                                Resolve
+                                                Close Ticket
                                             </button>
                                         </td>
                                     </tr>
@@ -178,9 +178,9 @@ function DeveloperActiveTickets() {
             {resolveConfirm && (
                 <div className="mgr-modal-overlay">
                     <div className="mgr-modal">
-                        <h3 className="mgr-modal-title">Resolve Project/Ticket</h3>
+                        <h3 className="mgr-modal-title">Close Ticket</h3>
                         <p className="mgr-modal-subtitle">
-                            Are you sure you want to mark ticket <strong>#{resolveConfirm.id}</strong> ("{resolveConfirm.requestType}") as resolved? This will close the request.
+                            Are you sure you want to close ticket <strong>#{resolveConfirm.id}</strong> ("{resolveConfirm.requestType}") after completion of work?
                         </p>
                         <div className="mgr-modal-actions">
                             <button
@@ -196,7 +196,7 @@ function DeveloperActiveTickets() {
                                 onClick={handleResolve}
                                 disabled={actionLoading}
                             >
-                                {actionLoading ? 'Resolving...' : 'Yes, Resolve'}
+                                {actionLoading ? 'Closing...' : 'Yes, Close Ticket'}
                             </button>
                         </div>
                     </div>

@@ -12,5 +12,6 @@ public interface SupportRequestRepository extends JpaRepository<SupportRequest, 
     List<SupportRequest> findByClientId(Long clientId);
     List<SupportRequest> findByStatusAndAssignedManager(String status, String assignedManager);
     List<SupportRequest> findByAssignedManager(String assignedManager);
+    List<SupportRequest> findByAssignedDeveloper(String assignedDeveloper);
 }
 

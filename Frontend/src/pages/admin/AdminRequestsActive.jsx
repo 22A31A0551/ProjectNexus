@@ -8,7 +8,9 @@ function AdminRequestsActive() {
 
     const fetchActiveRequests = async () => {
         try {
-            setLoading(true);
+            if (requests.length === 0) {
+                setLoading(true);
+            }
             const response = await fetch(window.API_BASE_URL + '/api/admin/requests/active');
             if (!response.ok) throw new Error('Failed');
             const data = await response.json();
@@ -18,6 +20,24 @@ function AdminRequestsActive() {
             setError('Could not load active requests.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCloseRequest = async (id) => {
+        if (!window.confirm("Are you sure you want to close this ticket/request?")) return;
+        try {
+            const response = await fetch(`${window.API_BASE_URL}/api/admin/requests/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'Closed' })
+            });
+            if (response.ok) {
+                fetchActiveRequests();
+            } else {
+                alert('Failed to close request.');
+            }
+        } catch (err) {
+            alert('Error closing request.');
         }
     };
 
@@ -61,6 +81,7 @@ function AdminRequestsActive() {
                                 <th>Assigned Manager</th>
                                 <th>Submitted</th>
                                 <th>Status</th>
+                                <th style={{ textAlign: 'right' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -100,6 +121,32 @@ function AdminRequestsActive() {
                                                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#fff', display: 'inline-block' }} />
                                                 {req.status}
                                             </span>
+                                        </td>
+                                        <td style={{ textAlign: 'right' }}>
+                                            <button 
+                                                onClick={() => handleCloseRequest(req.id)}
+                                                style={{ 
+                                                    background: 'rgba(239, 68, 68, 0.1)', 
+                                                    border: '1px solid rgba(239, 68, 68, 0.3)', 
+                                                    color: '#ef4444',
+                                                    padding: '5px 12px',
+                                                    borderRadius: '6px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 600,
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.target.style.background = '#ef4444';
+                                                    e.target.style.color = '#fff';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+                                                    e.target.style.color = '#ef4444';
+                                                }}
+                                            >
+                                                Close Ticket
+                                            </button>
                                         </td>
                                     </tr>
                                 ))

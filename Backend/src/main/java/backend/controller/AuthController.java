@@ -41,10 +41,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        // Check if Client record already exists for this email (pre-stored by Admin)
-        // If not, auto-create a Client profile for them so they are recognized in client portal
-        boolean clientExists = clientRepository.findAll().stream()
-                .anyMatch(c -> c.getEmail().equalsIgnoreCase(request.getEmail()));
+        boolean clientExists = clientRepository.findByEmailIgnoreCase(request.getEmail()).isPresent();
         if (!clientExists) {
             backend.model.Client newClient = new backend.model.Client(
                 request.getName(),
@@ -83,9 +80,7 @@ public class AuthController {
 
         Long responseId = user.getId();
         if ("CLIENT".equalsIgnoreCase(user.getRole())) {
-            Optional<backend.model.Client> clientOpt = clientRepository.findAll().stream()
-                    .filter(c -> c.getEmail().equalsIgnoreCase(user.getEmail()))
-                    .findFirst();
+            Optional<backend.model.Client> clientOpt = clientRepository.findByEmailIgnoreCase(user.getEmail());
             if (clientOpt.isPresent()) {
                 responseId = clientOpt.get().getId();
             }

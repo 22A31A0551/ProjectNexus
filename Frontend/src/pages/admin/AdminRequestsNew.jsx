@@ -33,7 +33,9 @@ function AdminRequestsNew() {
 
     const fetchRequests = async () => {
         try {
-            setLoading(true);
+            if (requests.length === 0) {
+                setLoading(true);
+            }
             const response = await fetch(window.API_BASE_URL + '/api/admin/requests/pending');
             if (!response.ok) throw new Error('Failed to fetch requests');
             const data = await response.json();

@@ -31,7 +31,9 @@ function ManagerDeveloperAssignment() {
 
     const fetchDevelopers = async () => {
         try {
-            setLoading(true);
+            if (developers.length === 0) {
+                setLoading(true);
+            }
             const res = await fetch(window.API_BASE_URL + '/api/manager/developers/workload');
             if (res.ok) {
                 setDevelopers(await res.json());
